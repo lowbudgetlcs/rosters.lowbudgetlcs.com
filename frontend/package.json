@@ -1,0 +1,11 @@
+{
+  "name": "rosters-frontend",
+  "version": "0.0.1",
+  "description": "Frontend for the internal roster management portal for the LBLCS.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ruuffian",
+  "license": "MIT"
+}
