@@ -1,0 +1,45 @@
+name: Deploy on Prod
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set variables
+        run: |
+          VER=$(cat VERSION)
+          echo "VERSION=$VER" >> $GITHUB_ENV
+          echo "APP=roster_portal" >> $GITHUB_ENV
+
+      - name: Build the Docker image
+        run: |
+          docker build . --file Dockerfile --tag $APP:latest
+          docker tag api_gate:latest lblcs/$APP:latest
+          docker tag api_gate:latest lblcs/$APP:$VERSION
+
+      - name: Push Docker Image
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PAT }}
+          docker push lblcs/$APP:latest
+          docker push lblcs/$APP:$VERSION
+          docker logout
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute docker compose on prod server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd docker/lblcs
+            docker-compose -f $APP.yaml down
+            docker-compose -f $APP.yaml up -d
