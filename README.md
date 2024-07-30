@@ -1,5 +1,38 @@
-# rosters.lodbugetlcs.com
+# create-svelte
 
-This is an internal roster management portal, which uses Vue for a SPA frontend and Express,js for an EXTREMELY simple CRUD-backend. The complexity of this project will likely increase in the future, but for now this is all it is.
+Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
 
-This project is split into two parts- frontend and backend. These are self explanatory, and are expected to be deployed as two separate processes. However, they depend on each other and as such have been bundled together in this repository. There is a docker-compose.yaml file that will deploy both in the same docker network so they can communicate- the backend is not a public-facing service.
+## Creating a project
+
+If you're seeing this, you've probably already done this step. Congrats!
+
+```bash
+# create a new project in the current directory
+npm create svelte@latest
+
+# create a new project in my-app
+npm create svelte@latest my-app
+```
+
+## Developing
+
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+
+```bash
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```bash
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
