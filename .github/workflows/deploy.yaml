@@ -13,7 +13,7 @@ jobs:
       - name: Set variables
         run: |
           VER=$(cat VERSION)
-          NAME="roster_portal"
+          NAME=$(cat NAME)
           echo "VERSION=$VER" >> $GITHUB_ENV
           echo "APP=$NAME" >> $GITHUB_ENV
 
