@@ -6,7 +6,6 @@ in pkgs.mkShellNoCC {
     nodejs_22
   ];
   shellHook = ''
-    npm install
     alias run="npm run"
   '';
 }
