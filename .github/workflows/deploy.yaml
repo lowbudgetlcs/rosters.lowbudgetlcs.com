@@ -12,10 +12,12 @@ jobs:
 
       - name: Set variables
         run: |
+          set -xv
           VER=$(cat VERSION)
           NAME=$(cat NAME)
           echo "VERSION=$VER" >> "$GITHUB_ENV"
           echo "APP=$NAME" >> "$GITHUB_ENV"
+          set +xv
 
       - name: Build the Docker image
         run: |
