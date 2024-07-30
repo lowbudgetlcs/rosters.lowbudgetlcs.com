@@ -14,22 +14,21 @@ jobs:
         run: |
           set -xv
           VER=$(cat VERSION)
-          NAME=$(cat NAME)
-          echo "VERSION=$VER" >> "$GITHUB_ENV"
-          echo "APP=$NAME" >> "$GITHUB_ENV"
+          echo "VERSION=$VER" >> $GITHUB_ENV
+          echo "APP=roster_portal" >> $GITHUB_ENV
           set +xv
 
       - name: Build the Docker image
         run: |
-          docker build . --file Dockerfile --tag $APP:latest
-          docker tag api_gate:latest lblcs/$APP:latest
-          docker tag api_gate:latest lblcs/$APP:$VERSION
+          docker build . --file Dockerfile --tag ${{ env.APP }}:latest
+          docker tag ${{ env.APP }}:latest lblcs/${{ env.APP }}:latest
+          docker tag ${{ env.APP }}:latest lblcs/${{ env.APP }}:${{ env.VERSION }}
 
       - name: Push Docker Image
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PAT }}
-          docker push lblcs/$APP:latest
-          docker push lblcs/$APP:$VERSION
+          docker push lblcs/${{ env.APP }}:latest
+          docker push lblcs/${{ env.APP }}:${{ env.VERSION }}
           docker logout
 
   deploy:
@@ -44,5 +43,5 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd docker/lblcs
-            docker-compose -f $APP.yaml down
-            docker-compose -f $APP.yaml up -d
+            docker-compose -f ${{ env.APP }}.yaml down
+            docker-compose -f ${{ env.APP }}.yaml up -d
