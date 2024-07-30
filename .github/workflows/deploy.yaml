@@ -13,8 +13,9 @@ jobs:
       - name: Set variables
         run: |
           VER=$(cat VERSION)
+          NAME="roster_portal"
           echo "VERSION=$VER" >> $GITHUB_ENV
-          echo "APP=roster_portal" >> $GITHUB_ENV
+          echo "APP=$NAME" >> $GITHUB_ENV
 
       - name: Build the Docker image
         run: |
