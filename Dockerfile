@@ -1,7 +1,7 @@
 FROM node:22-alpine AS builder
 WORKDIR /build
 COPY package*.json .
-COPY environment.d ./.env
+COPY .env ./environment.d
 
 RUN npm ci
 #RUN npm prune --omit=dev
