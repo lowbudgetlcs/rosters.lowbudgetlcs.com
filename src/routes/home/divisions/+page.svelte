@@ -38,6 +38,11 @@
         {form.error}
       </div>
     {/if}
+    {#if form?.message}
+      <!-- this message is ephemeral; it exists because the page was rendered in
+            response to a form submission. it will vanish if the user reloads -->
+      {form.message}
+    {/if}
   </form>
 </CollapsibleSection>
 

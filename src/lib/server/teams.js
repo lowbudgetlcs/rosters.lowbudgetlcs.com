@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { teams, divisions, groupKeys, players } from '$lib/server/database/appSchema';
+import { fetchPuuid } from '$lib/server/riot';
 import { sql, eq } from 'drizzle-orm';
 import { app_db } from '$lib/server/database/db';
 
@@ -31,23 +32,13 @@ export async function insertTeam(team) {
   let captain_id;
   if (captain) {
     // Fetch riot PUUID
-    const [gameName, tag] = name.split("#");
-    const url = `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tag}`;
-    const res = await fetch(url, {
-      headers: {
-        "X-Riot-Token": process.env.RIOT_TOKEN ?? ""
-      }
-    });
-    if (!res.ok) {
-      const body = await res.json();
-      console.error(`Recieved ${res.status} ${body}`);
-      return { error: 'Error fetching player\'s puuid, contact ruuffian.' };
-
+    const { error, puuid } = await fetchPuuid(captain);
+    if (error) {
+      console.error(error);
+      return { error: error };
     }
-    const body = await res.json();
-    const puuid = body.puuid;
     // Fetch player id
-    const captainId = await app_db.select({ field1: players.id }).from(players).where(eq(players.riotPuuid, puuid));
+    const captainId = await app_db.select({ field1: players.id }).from(players).where(eq(players.primaryRiotPuuid, puuid));
     if (captainId.length != 1) {
       return { error: 'puuid fetch issue, if you are positive the player was created contact ruuffian immediately.' };
     }
