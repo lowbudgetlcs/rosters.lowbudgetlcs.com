@@ -1,8 +1,13 @@
-FROM node:22-alpine 
+FROM node:22
 #AS builder
 WORKDIR /build
 COPY package*.json .
 COPY environment.d .
+
+RUN sudo apt-get -y update && sudo apt-get -y upgrade && sudo apt-get install -y sqlite3 libsqlite3-dev
+
+RUN sqlite3 sqlite.db < meta.sql
+RUN sqlite3 sqlite.db < seed.sql
 
 RUN npm ci
 #RUN npm prune --omit=dev
@@ -11,7 +16,6 @@ COPY . .
 
 RUN npm run build
 
-RUN sqlite3 sqlite.db < meta.sql
 #FROM node:22-alpine AS deployer
 
 #WORKDIR /app
