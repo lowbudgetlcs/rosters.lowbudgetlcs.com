@@ -5,18 +5,26 @@ on:
     branches: [ "main" ]
 
 jobs:
+  env:
+    uses: ./.github/workflows/build-env.yaml
+
   build:
+    needs: env
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Download env artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: env
 
-      - name: Set variables
+      - name: Import env
+        shell: bash
         run: |
-          set -xv
-          VER=$(cat VERSION)
-          echo "VERSION=$VER" >> $GITHUB_ENV
-          echo "APP=roster_portal" >> $GITHUB_ENV
-          set +xv
+          while read env; do
+            echo $env >> $GITHUB_ENV
+          done <<< $(cat .env)
+
+      - uses: actions/checkout@v4
 
       - name: Build the Docker image
         run: |
@@ -27,14 +35,31 @@ jobs:
       - name: Push Docker Image
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PAT }}
-          docker push lblcs/${{ env.APP }}:latest
           docker push lblcs/${{ env.APP }}:${{ env.VERSION }}
+          docker push lblcs/${{ env.APP }}:latest
           docker logout
+
+      - name: Chain environment
+        run: |
+          echo "VERSION=${{ env.VERSION }}" >> $GITHUB_OUTPUT 
+          echo "APP=${{ env.APP }}" >> $GITHUB_OUTPUT 
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Download env artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: env
+
+      - name: Import env
+        shell: bash
+        run: |
+          while read env; do
+            echo $env >> $GITHUB_ENV
+          done <<< $( cat .env)
+
       - name: Execute docker compose on prod server
         uses: appleboy/ssh-action@v1.0.3
         with:
