@@ -1,13 +1,13 @@
 import argon2 from 'argon2';
-import { db } from '$lib/server/database/db';
-import { users } from '$lib/server/database/schema';
+import { meta_db } from '$lib/server/database/db';
+import { users } from '$lib/server/database/metaSchema';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 
 export async function loginUser(username, password) {
   if (!username || !password) return { error: 'Missing username or password.' };
 
-  const fetchedUser = await db.select().from(users).where(eq(users.username, username)).limit(1);
+  const fetchedUser = await meta_db.select().from(users).where(eq(users.username, username)).limit(1);
 
   if (fetchedUser.length < 1) {
     return {

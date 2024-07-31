@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { db } from '$lib/server/database/db';
-import { users } from '$lib/server/database/schema';
+import { meta_db } from '$lib/server/database/db';
+import { users } from '$lib/server/database/metaSchema';
 import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
 
@@ -18,7 +18,7 @@ export const handle = async ({ event, resolve }) => {
         throw new Error("Something went wrong");
       }
 
-      const user = await db.select().from(users).where(eq(users.id, jwtUser.id));
+      const user = await meta_db.select().from(users).where(eq(users.id, jwtUser.id));
 
       if (!user) {
         throw new Error("User not found");

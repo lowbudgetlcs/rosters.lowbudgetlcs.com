@@ -16,10 +16,10 @@ export const load = (event) => {
 
 export const actions = {
   logout: async (event) => {
+    console.log("Hello")
     event.cookies.delete('AuthorizationToken', {
       path: '/'
     });
-    console.log("logout");
 
     throw redirect(302, '/login');
   }

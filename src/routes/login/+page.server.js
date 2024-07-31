@@ -10,7 +10,7 @@ export const load = (event) => {
 };
 
 export const actions = {
-  default: async (event) => {
+  login: async (event) => {
     const data = Object.fromEntries(await event.request.formData());
     if (!('username' in data) || !("password" in data)) {
       return fail(400, {

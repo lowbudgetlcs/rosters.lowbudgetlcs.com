@@ -11,7 +11,7 @@
 <h1>Login</h1>
 
 <section>
-  <form method="POST" use:enhance>
+  <form method="POST" action="?/login" use:enhance>
     <label for="username">Username</label>
     <input type="username" name="username" id="username" required />
 
