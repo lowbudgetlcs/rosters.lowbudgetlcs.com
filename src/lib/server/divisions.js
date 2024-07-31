@@ -1,15 +1,23 @@
 import 'dotenv/config';
 import { app_db } from '$lib/server/database/db';
-import { eq } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 import { divisions } from '$lib/server/database/appSchema';
 
-export async function insertDivision(name, groups, description) {
-  if (!name || !groups) return { error: 'Missing required data.' };
+export async function insertDivision(division) {
+  const { name, groups, description = "", tid } = division;
 
-  const division = await app_db.select().from(divisions).where(eq(divisions.name, name));
-  if (division.length > 0) {
+  if (!name || !groups || !tid) return { error: 'Missing required data.' };
+
+  const divisionNameCheck = await app_db.select().from(divisions).where(sql`lower(${divisions.name}) = lower(${name})`);
+  if (divisionNameCheck.length > 0) {
     return {
       error: 'Division with this name already exists.'
+    };
+  }
+  const tournamentIdCheck = await app_db.select().from(divisions).where(eq(divisions.tournamentId, tid));
+  if (tournamentIdCheck.length > 0) {
+    return {
+      error: 'Division with this tournament id already exists.'
     };
   }
   // Write to database
@@ -17,8 +25,8 @@ export async function insertDivision(name, groups, description) {
     await app_db.insert(divisions).values({
       name: name,
       groups: groups,
-      description: description || null,
-      tournamentId: 1,
+      description: description,
+      tournamentId: tid,
       providerId: process.env.PROVIDER_ID,
     });
   } catch (error) {

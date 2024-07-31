@@ -7,7 +7,6 @@ import jwt from 'jsonwebtoken';
 export const handle = async ({ event, resolve }) => {
   const authCookie = event.cookies.get('AuthorizationToken');
 
-
   if (authCookie) {
     // Remove Bearer prefix
     const token = authCookie.split(' ')[1];
@@ -19,7 +18,6 @@ export const handle = async ({ event, resolve }) => {
       }
 
       const user = await meta_db.select().from(users).where(eq(users.id, jwtUser.id));
-      console.log(user);
 
       if (!user) {
         throw new Error("User not found");
