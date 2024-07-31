@@ -23,6 +23,7 @@ jobs:
           while read env; do
             echo $env >> $GITHUB_ENV
           done <<< $(cat .env)
+          echo ${{ secrets.ENV }} > environment.d
 
       - uses: actions/checkout@v4
 
@@ -38,11 +39,6 @@ jobs:
           docker push lblcs/${{ env.APP }}:${{ env.VERSION }}
           docker push lblcs/${{ env.APP }}:latest
           docker logout
-
-      - name: Chain environment
-        run: |
-          echo "VERSION=${{ env.VERSION }}" >> $GITHUB_OUTPUT 
-          echo "APP=${{ env.APP }}" >> $GITHUB_OUTPUT 
 
   deploy:
     needs: build

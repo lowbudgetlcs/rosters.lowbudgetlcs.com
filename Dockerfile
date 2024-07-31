@@ -1,7 +1,7 @@
 FROM node:22-alpine AS builder
 WORKDIR /build
 COPY package*.json .
-COPY .env .
+COPY environment.d ./.env
 
 RUN npm ci
 #RUN npm prune --omit=dev
@@ -22,4 +22,4 @@ EXPOSE 3000
 
 ENV NODE_ENV=production
 
-CMD [ "node", "--env-file", ".env", "build" ] 
+CMD [ "node", "--env-file", "environment.d", "build" ] 
