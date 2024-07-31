@@ -16,7 +16,7 @@ WORKDIR /app
 
 COPY --from=builder /build/build build/
 COPY --from=builder /build/package.json .
-COPY --from=builder /build/.env .
+COPY --from=builder /build/envionment.d .
 
 EXPOSE 3000
 
