@@ -1,4 +1,5 @@
-FROM node:22-alpine AS builder
+FROM node:22-alpine 
+#AS builder
 WORKDIR /build
 COPY package*.json .
 COPY environment.d .
@@ -10,14 +11,14 @@ COPY . .
 
 RUN npm run build
 
-FROM node:22-alpine AS deployer
+#FROM node:22-alpine AS deployer
 
-WORKDIR /app
+#WORKDIR /app
 
-COPY --from=builder /build/build ./build
-COPY --from=builder /build/package.json .
-COPY --from=builder /build/node_modules .
-COPY --from=builder /build/environment.d .
+#COPY --from=builder /build/build ./build
+#COPY --from=builder /build/package.json .
+#COPY --from=builder /build/node_modules .
+#COPY --from=builder /build/environment.d .
 
 EXPOSE 3000
 
