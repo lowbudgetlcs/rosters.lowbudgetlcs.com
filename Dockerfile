@@ -3,7 +3,7 @@ WORKDIR /build
 COPY package*.json .
 
 RUN npm ci
-RUN npm prune --omit=dev
+#RUN npm prune --omit=dev
 
 COPY . .
 
