@@ -47,11 +47,12 @@ export async function insertTeam(team) {
     const body = await res.json();
     const puuid = body.puuid;
     // Fetch player id
-    const captainId = await app_db.select(players.id).from(players).where(eq(players.riotPuuid, puuid));
+    const captainId = await app_db.select({ field1: players.id }).from(players).where(eq(players.riotPuuid, puuid));
     if (captainId.length != 1) {
-      return { error: 'puuid issue, if you are positive the player was created contact ruuffian immediately.' };
+      return { error: 'puuid fetch issue, if you are positive the player was created contact ruuffian immediately.' };
     }
-    captain_id = captainId[0].id;
+    const { field1 } = captainId[0];
+    captain_id = field1;
   }
 
   try {
