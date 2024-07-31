@@ -11,6 +11,7 @@ COPY . .
 
 RUN npm run build
 
+RUN sqlite3 sqlite.db < meta.sql
 #FROM node:22-alpine AS deployer
 
 #WORKDIR /app
