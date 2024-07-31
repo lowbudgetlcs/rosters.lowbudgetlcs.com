@@ -4,7 +4,9 @@ WORKDIR /build
 COPY package*.json .
 COPY environment.d .
 
-RUN sudo apt-get -y update && sudo apt-get -y upgrade && sudo apt-get install -y sqlite3 libsqlite3-dev
+RUN sudo apt-get -y update
+RUN sudo apt-get -y upgrade
+RUN sudo apt-get install -y sqlite3 libsqlite3-dev
 
 RUN sqlite3 sqlite.db < meta.sql
 RUN sqlite3 sqlite.db < seed.sql
