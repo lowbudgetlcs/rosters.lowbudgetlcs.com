@@ -69,4 +69,5 @@ jobs:
           script: |
             cd docker/lblcs
             docker-compose -f ${{ env.APP }}.yaml down
+            docker-compose -f ${{ env.APP }}.yaml pull
             docker-compose -f ${{ env.APP }}.yaml up -d
