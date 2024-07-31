@@ -31,7 +31,21 @@ export async function insertTeam(team) {
   let captain_id;
   if (captain) {
     // Fetch riot PUUID
-    const puuid = "abcd";
+    const [gameName, tag] = name.split("#");
+    const url = `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tag}`;
+    const res = await fetch(url, {
+      headers: {
+        "X-Riot-Token": process.env.RIOT_TOKEN ?? ""
+      }
+    });
+    if (!res.ok) {
+      const body = await res.json();
+      console.error(`Recieved ${res.status} ${body}`);
+      return { error: 'Error fetching player\'s puuid, contact ruuffian.' };
+
+    }
+    const body = await res.json();
+    const puuid = body.puuid;
     // Fetch player id
     const captainId = await app_db.select(players.id).from(players).where(eq(players.riotPuuid, puuid));
     if (captainId.length != 1) {
