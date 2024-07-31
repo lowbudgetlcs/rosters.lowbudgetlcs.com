@@ -4,6 +4,7 @@ let
 in pkgs.mkShellNoCC {
   packages = with pkgs; [
     nodejs_22
+    sqlite
   ];
   shellHook = ''
     alias run="npm run"

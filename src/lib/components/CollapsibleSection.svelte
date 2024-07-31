@@ -1,6 +1,4 @@
 <script>
-    import Page from "../../routes/divisions/+page.svelte";
-
   // based on suggestions from:
   // Inclusive Components by Heydon Pickering https://inclusive-components.design/collapsible-sections/
   export let headerText;

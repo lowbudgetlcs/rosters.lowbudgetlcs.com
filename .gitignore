@@ -1,4 +1,8 @@
 node_modules
+.idea
+.vscode 
+*.db
+hash.js
 
 # Output
 .output

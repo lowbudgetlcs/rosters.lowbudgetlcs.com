@@ -2,7 +2,7 @@
   import CollapsibleSection from '$lib/components/CollapsibleSection.svelte';
 </script>
 
-<h1>Player Manager</h1>
+<h1>Team Manager</h1>
 
 <CollapsibleSection headerText="Create Team">
   <p>
