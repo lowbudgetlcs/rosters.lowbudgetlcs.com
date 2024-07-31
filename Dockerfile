@@ -8,13 +8,13 @@ RUN apt-get -y update
 RUN apt-get -y upgrade
 RUN apt-get install -y sqlite3 libsqlite3-dev
 
-RUN sqlite3 sqlite.db < meta.sql
-RUN sqlite3 sqlite.db < seed.sql
-
 RUN npm ci
 #RUN npm prune --omit=dev
 
 COPY . .
+
+RUN sqlite3 sqlite.db < meta.sql
+RUN sqlite3 sqlite.db < seed.sql
 
 RUN npm run build
 
