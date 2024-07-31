@@ -8,4 +8,6 @@
 <a href="/home/teams">Team Management</a>
 <a href="/home/players">Player Management</a>
 
-<button formaction="?/logout">Logout</button>
+<form method="POST" action="?/logout">
+<button type="submit">Logout</button>
+</form>

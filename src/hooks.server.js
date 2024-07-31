@@ -19,6 +19,7 @@ export const handle = async ({ event, resolve }) => {
       }
 
       const user = await meta_db.select().from(users).where(eq(users.id, jwtUser.id));
+      console.log(user);
 
       if (!user) {
         throw new Error("User not found");
