@@ -41,9 +41,9 @@ jobs:
           echo "ORIGIN=${{ secrets.ORIGIN }}" >> environment.d
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> environment.d
           echo "PROVIDER_ID=${{ secrets.PROVIDER_ID }}" >> environment.d
-          docker buildx build --push --tag lblcs/${{ env.APP }}:latest .
-          docker tag lblcs/${{ env.APP }}:latest lblcs/${{ env.APP }}:latest
+          docker build -t lblcs/${{ env.APP }}:latest .
           docker tag lblcs/${{ env.APP }}:latest lblcs/${{ env.APP }}:${{ env.VERSION }}
+          docker push lblcs/${{ env.APP }}:latest
 
   deploy:
     needs: build
