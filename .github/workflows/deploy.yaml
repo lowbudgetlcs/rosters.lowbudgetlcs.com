@@ -75,6 +75,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd docker/lblcs/${{ env.APP }}
-            docker-compose -f ${{ env.APP }}.yaml down
-            docker-compose -f ${{ env.APP }}.yaml pull
-            docker-compose -f ${{ env.APP }}.yaml up -d
+            docker-compose down
+            docker-compose pull
+            docker-compose up -d
