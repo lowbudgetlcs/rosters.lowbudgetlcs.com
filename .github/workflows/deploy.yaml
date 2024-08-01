@@ -22,7 +22,7 @@ jobs:
         run: |
           while read env; do
             echo $env >> $GITHUB_ENV
-          done <<< $(cat .env)
+          done <<< $(cat .env.art)
 
       - uses: actions/checkout@v4
       - name: Set up Docker Buildx
@@ -36,11 +36,11 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          echo POSTGRES_CONNECTION_URI=${{ secrets.POSTGRES_CONNECTION_URI }} > environment.d
-          echo RIOT_TOKEN=${{ secrets.RIOT_TOKEN }} >> environment.d
-          echo ORIGIN=${{ secrets.ORIGIN }} >> environment.d
-          echo JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} >> environment.d
-          echo PROVIDER_ID=${{ secrets.PROVIDER_ID }} >> environment.d
+          echo POSTGRES_CONNECTION_URI=${{ secrets.POSTGRES_CONNECTION_URI }} > .env
+          echo RIOT_TOKEN=${{ secrets.RIOT_TOKEN }} >> .env
+          echo ORIGIN=${{ secrets.ORIGIN }} >> .env
+          echo JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} >> .env
+          echo PROVIDER_ID=${{ secrets.PROVIDER_ID }} >> .env
           docker build -t lblcs/${{ env.APP }}:latest .
           docker tag lblcs/${{ env.APP }}:latest lblcs/${{ env.APP }}:${{ env.VERSION }}
           docker push lblcs/${{ env.APP }}:latest
@@ -68,7 +68,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd docker/lblcs
+            cd docker/lblcs/${{ env.APP }}
             docker-compose -f ${{ env.APP }}.yaml down
             docker-compose -f ${{ env.APP }}.yaml pull
             docker-compose -f ${{ env.APP }}.yaml up -d
