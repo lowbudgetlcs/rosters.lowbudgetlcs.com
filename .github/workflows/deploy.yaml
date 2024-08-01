@@ -28,7 +28,12 @@ jobs:
 
       - name: Build the Docker image
         run: |
-          echo ${{ secrets.ENV }} > environment.d
+          touch environment.d
+          echo "POSTGRES_CONNECTION_URI=${{ secrets.POSTGRES_CONNECTION_URI }}" >> environment.d
+          echo "RIOT_TOKEN=${{ secrets.RIOT_TOKEN }}" >> environment.d
+          echo "ORIGIN"=${{ secrets.ORIGIN }}" >> environment.d
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> environment.d
+          echo "PROVIDER_ID=${{ secrets.PROVIDER_ID }}" >> environment.d
           docker build . --file Dockerfile --tag ${{ env.APP }}:latest
           docker tag ${{ env.APP }}:latest lblcs/${{ env.APP }}:latest
           docker tag ${{ env.APP }}:latest lblcs/${{ env.APP }}:${{ env.VERSION }}
