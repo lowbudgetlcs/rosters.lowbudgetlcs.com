@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, serial, bigint, char, text, integer, varchar, foreignKey, boolean, index, smallint } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, serial, bigint, char, text, integer, varchar, boolean, index, smallint } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 export const aalLevel = pgEnum("aal_level", ['aal1', 'aal2', 'aal3']);
