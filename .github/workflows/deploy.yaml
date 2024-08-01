@@ -42,6 +42,11 @@ jobs:
           JWT: ${{ secrets.JWT_SECRET_KEY }}
           PROVIDER: ${{ secrets.PROVIDER_ID }}
         run: |
+          echo POSTGRES_CONNECTION_URI="$POSTGRES" > .env
+          echo RIOT_TOKEN="$RIOT" >> .env
+          echo ORIGIN="$ORIGIN" >> .env
+          echo JWT_SECRET_KEY="$JWT" >> .env
+          echo PROVIDER_ID="$PROVIDER" >> .env
           docker build -t lblcs/${{ env.APP }}:latest .
           docker tag lblcs/${{ env.APP }}:latest lblcs/${{ env.APP }}:${{ env.VERSION }}
           docker push lblcs/${{ env.APP }}:latest
