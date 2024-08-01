@@ -35,7 +35,7 @@ jobs:
 
       - name: Push Docker Image
         run: |
-          ${{ secrets.DOCKER_PAT }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          echo ${{ secrets.DOCKER_PAT }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker push lblcs/${{ env.APP }}:${{ env.VERSION }}
           docker push lblcs/${{ env.APP }}:latest
           docker logout
