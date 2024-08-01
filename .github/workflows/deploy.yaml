@@ -36,11 +36,6 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          echo POSTGRES_CONNECTION_URI="${{ secrets.POSTGRES_CONNECTION_URI }}" > .env
-          echo RIOT_TOKEN="${{ secrets.RIOT_TOKEN }}" >> .env
-          echo ORIGIN="${{ secrets.ORIGIN }}" >> .env
-          echo JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" >> .env
-          echo PROVIDER_ID="${{ secrets.PROVIDER_ID }}" >> .env
           docker build -t lblcs/${{ env.APP }}:latest .
           docker tag lblcs/${{ env.APP }}:latest lblcs/${{ env.APP }}:${{ env.VERSION }}
           docker push lblcs/${{ env.APP }}:latest
