@@ -42,7 +42,7 @@ jobs:
           JWT: ${{ secrets.JWT_SECRET_KEY }}
           PROVIDER: ${{ secrets.PROVIDER_ID }}
         run: |
-          echo POSTGRES_CONNECTION_URI="$POSTGRES" > .env
+          echo POSTGRES_CONNECTION_URI="$POSTGRES > .env
           echo RIOT_TOKEN="$RIOT" >> .env
           echo ORIGIN="$ORIGIN" >> .env
           echo JWT_SECRET_KEY="$JWT" >> .env
@@ -69,6 +69,12 @@ jobs:
 
       - name: Execute docker compose on prod server
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          POSTGRES: ${{ secrets.POSTGRES_CONNECTION_URI }}
+          RIOT: ${{ secrets.RIOT_TOKEN }}
+          ORIGIN: ${{ secrets.ORIGIN }}
+          JWT: ${{ secrets.JWT_SECRET_KEY }}
+          PROVIDER: ${{ secrets.PROVIDER_ID }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
