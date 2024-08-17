@@ -3,6 +3,9 @@ import { meta_db } from '$lib/server/database/db';
 import { users } from '$lib/server/database/metaSchema';
 import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
+import { initCron } from '$lib/server/cron';
+
+initCron();
 
 export const handle = async ({ event, resolve }) => {
   const authCookie = event.cookies.get('AuthorizationToken');
