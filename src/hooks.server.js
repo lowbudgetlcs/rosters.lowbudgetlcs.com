@@ -17,11 +17,12 @@ export const handle = async ({ event, resolve }) => {
         throw new Error("Something went wrong");
       }
 
-      const user = await meta_db.select().from(users).where(eq(users.id, jwtUser.id));
+      const res = await meta_db.select().from(users).where(eq(users.id, jwtUser.id));
 
-      if (!user) {
+      if (res.length == 0) {
         throw new Error("User not found");
       }
+      const user = res[0];
 
       const sessionUser = {
         id: user.id,

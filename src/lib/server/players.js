@@ -38,7 +38,8 @@ export async function insertPlayer(player) {
   try {
     const row = await app_db.insert(players).values({
       primaryRiotPuuid: puuid,
-      teamId: team_id || null
+      teamId: team_id || null,
+      summonerName: name,
     }).returning();
     player_id = row[0].id;
   } catch (error) {
@@ -54,4 +55,16 @@ export async function insertPlayer(player) {
     return { error: 'Error inserting player into accounts table but player creation succeeded. Contact ruuffian immediately.' };
   }
   return { message: 'Successfully inserted player record.' };
+}
+
+export async function fetchPlayerListing() {
+  try {
+    const playerRes = await app_db.select({ summonerName: players.summonerName, teamName: teams.name }).from(players).leftJoin(teams, eq(players.teamId, teams.id));
+    return { players: playerRes };
+  }
+  catch (err) {
+    console.error(err);
+    return { error: "Error fetching players, contact ruuffian" };
+  }
+
 }

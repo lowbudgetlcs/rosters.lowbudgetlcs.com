@@ -5,7 +5,7 @@ export const load = (event) => {
   const user = event.locals.user;
 
   if (user) {
-    throw redirect(302, '/home');
+    throw redirect(302, '/');
   }
 };
 
@@ -36,6 +36,6 @@ export const actions = {
       maxAge: 60 * 60 * 24 // 1 day
     });
 
-    throw redirect(302, '/home');
+    throw redirect(302, '/');
   },
 };

@@ -60,3 +60,13 @@ export async function insertTeam(team) {
   }
   return { message: 'Team inserted successfully.' };
 }
+
+export async function retrieveAllTeamsByDivision(divisionId){
+  try{
+    const divisionTeams = await app_db.select().from(teams).where(eq(teams.division_id, divisionId))
+    return { teams: divisionTeams };
+  } catch(e){
+    console.log(e)
+    return { error: "Error retrieving teams from database, contact ruuffian."}
+  }
+}

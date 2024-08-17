@@ -1,8 +1,16 @@
 import { fail } from '@sveltejs/kit';
-import { insertPlayer } from '$lib/server/players';
+import { insertPlayer, fetchPlayerListing } from '$lib/server/players';
 
-export function load() {
-
+export async function load() {
+  const {error, players} = await fetchPlayerListing();
+  if(error){
+    return {
+      error: error
+    };
+  }
+  return {
+    players: players
+  };
 }
 
 export const actions = {
