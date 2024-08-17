@@ -24,5 +24,5 @@ export function initCron() {
       }
     }
     console.info(`SUMMONER REFRESH FINISHED @${new Date()}`);
-  });
+  }).trigger();
 }
