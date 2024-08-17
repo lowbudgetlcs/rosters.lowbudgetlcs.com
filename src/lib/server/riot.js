@@ -9,6 +9,7 @@ export async function fetchPuuid(name) {
       "X-Riot-Token": process.env.RIOT_TOKEN ?? ""
     }
   });
+  sleep(10);
   if (!res.ok) {
     const body = await res.json();
     console.error(`Recieved ${res.status} ${body}`);
@@ -29,7 +30,7 @@ export async function fetchNameByPuuid(puuid) {
       "X-Riot-Token": process.env.RIOT_TOKEN ?? ""
     }
   });
-  await new Promise(r => setTimeout(r, 100));
+  sleep(10);
   if (!res.ok) {
     console.error(`Recieved ${res.status}`);
     if (res.status === 404) {
@@ -40,3 +41,5 @@ export async function fetchNameByPuuid(puuid) {
   const body = await res.json();
   return { name: { gameName: body.gameName, tagLine: body.tagLine } };
 }
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
