@@ -6,7 +6,7 @@ import { Cron } from 'croner';
 
 export function initCron() {
   // Summoner Name refresh
-  Cron('30 23 * * *', { maxRetries: 1 }, async () => {
+  Cron('35 23 * * *', { maxRetries: 1, timezone: 'America/New_York' }, async () => {
     console.info(`SUMMONER REFRESH STARTED @${new Date()}`);
     const playerList = await app_db.select({ id: players.id, puuid: players.primaryRiotPuuid, name: players.summonerName }).from(players);
     for (const player of playerList) {
