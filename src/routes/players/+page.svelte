@@ -4,6 +4,7 @@
 
   export let form;
   export let data;
+  let formLoading = false;
 </script>
 
 <svelte:head>
@@ -43,7 +44,11 @@
         />
         <br />
 
-        <button type="submit" class="rounded-xl bg-primary-500 hover:bg-primary-400 text-black">Submit</button>
+        <button
+          type="submit"
+          class="rounded-xl bg-primary-500 hover:bg-primary-400 text-black"
+          >Submit</button
+        >
 
         {#if form?.error}
           <div class="notice error text-red-400 font-bold italic">
@@ -63,7 +68,9 @@
             {#each data.players as player}
               <li class="flex flex-row">
                 <p class="mx-2">{player.summonerName}</p>
-                <p class="mx-2">{player?.teamName ? player.teamName : "NO_TEAM"}</p>
+                <p class="mx-2">
+                  {player?.teamName ? player.teamName : "NO_TEAM"}
+                </p>
               </li>
             {/each}
           </ul>
@@ -79,5 +86,42 @@
       eius, esse sit sunt, facilis nisi voluptas perspiciatis, fuga unde placeat
       enim. Totam.
     </p>
+  </CollapsibleSection>
+
+  <CollapsibleSection headerText="Batch Add Players">
+    <form
+      use:enhance={() => {
+        formLoading = true;
+        return async ({ update }) => {
+          formLoading = false;
+          update();
+        };
+      }}
+      method="POST"
+      action="?/batchCreatePlayers"
+      class="flex flex-col w-full rounded-xl p-2 bg-surface-300"
+    >
+      <label for="batch">Paste csv (player,team)</label>
+      <textarea
+        placeholder="name#tag,team"
+        cols="40"
+        id="batch"
+        name="batch"
+        class="w-80 text-surface-200 p-1"
+      />
+      <br />
+
+      <button
+        type="submit"
+        class="rounded-xl bg-primary-500 hover:bg-primary-400 text-black"
+        >Submit</button
+      >
+      {#if formLoading}
+        <div class="">Please wait...</div>
+      {/if}
+      {#if form?.message}
+        <p class="font-bold italic text-white">{form.message}</p>
+      {/if}
+    </form>
   </CollapsibleSection>
 </div>

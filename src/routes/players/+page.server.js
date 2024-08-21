@@ -1,9 +1,9 @@
 import { fail } from '@sveltejs/kit';
-import { insertPlayer, fetchPlayerListing } from '$lib/server/players';
+import { insertPlayer, fetchPlayerListing, batchInsertPlayers } from '$lib/server/players';
 
 export async function load() {
-  const {error, players} = await fetchPlayerListing();
-  if(error){
+  const { error, players } = await fetchPlayerListing();
+  if (error) {
     return {
       error: error
     };
@@ -14,6 +14,24 @@ export async function load() {
 }
 
 export const actions = {
+  batchCreatePlayers: async (event) => {
+    const data = Object.fromEntries(await event.request.formData());
+
+    if (!data.batch) {
+      return fail(400, {
+        error: 'Missing batch data.'
+      });
+    }
+
+    const { error, message } = batchInsertPlayers(data);
+
+    if (error) {
+      return fail(401, {
+        error: error
+      });
+    }
+    return { message };
+  },
   createPlayer: async (event) => {
     const data = Object.fromEntries(await event.request.formData());
 

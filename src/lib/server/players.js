@@ -1,8 +1,12 @@
+import 'dotenv/config';
 import { count, eq, sql } from 'drizzle-orm';
 import { app_db } from '$lib/server/database/db';
 import { players, teams } from '$lib/server/database/appSchema';
 import { insertAccount } from '$lib/server/accounts';
 import { fetchPuuid } from '$lib/server/riot';
+import { sleep } from '$lib/utils';
+
+const SMALL_RATE = Number(process.env.SMALL_RATE);
 
 export async function insertPlayer(player) {
   const { name, team } = player;
@@ -11,6 +15,7 @@ export async function insertPlayer(player) {
 
   // Fetch puuid
   const { error, puuid } = await fetchPuuid(name);
+  sleep(SMALL_RATE);
   if (error) {
     console.error(error);
     return { error: error };
@@ -67,4 +72,24 @@ export async function fetchPlayerListing() {
     return { error: "Error fetching players, contact ruuffian" };
   }
 
+}
+
+// batch = { batch: "player,team\nplayer,team\n"}
+export async function batchInsertPlayers(data) {
+  const { batch } = data;
+  let insertCount = 0;
+  let errorCount = 0;
+  const rows = batch.split("\n");
+  for (const row of rows) {
+    const [player, team] = row.split(",").map(s => s.trim());
+    const { _, error } = await insertPlayer({ name: player, team: team });
+    sleep(SMALL_RATE);
+    if (error) {
+      errorCount++;
+      console.error(`Error inserting ${row}: ${error}`);
+    } else {
+      insertCount++;
+    }
+  }
+  return { message: `Inserted ${insertCount} player(s) with ${errorCount} errors. Contact ruuffian for details on errors.` };
 }

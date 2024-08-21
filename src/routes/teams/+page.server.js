@@ -1,8 +1,26 @@
 import { fail } from '@sveltejs/kit';
-import { insertTeam } from '$lib/server/teams';
+import { insertTeam, fetchTeamListing } from '$lib/server/teams';
+import { fetchPlayerListing } from '$lib/server/players';
 
 export function load() {
+  const data = {
+    errors: []
+  };
 
+  const { errorP, players } = fetchPlayerListing();
+  if (errorP) {
+    data.errors.push(errorP);
+  } else {
+    data.playerListing = players;
+  }
+
+  const { errorT, teams } = fetchTeamListing();
+  if (errorT) {
+    data.errors.push(errorT);
+  } else {
+    data.teamListing = teams;
+  }
+  return data;
 }
 
 export const actions = {
