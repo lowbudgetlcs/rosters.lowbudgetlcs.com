@@ -19,49 +19,46 @@
 <div class="flex flex-row text-lg">
   <div class="flex flex-col">
     <CollapsibleSection headerText="Create Player">
-      <div class="flex flex-row">
-        <form
-          use:enhance
-          method="POST"
-          action="?/createPlayer"
-          class="flex flex-col w-full rounded-xl p-2 bg-surface-300"
+      <form
+        use:enhance
+        method="POST"
+        action="?/createPlayer"
+        class="flex flex-col w-full rounded-xl p-2 bg-surface-300"
+      >
+        <label for="name">Primary Account (with #NA1 etc)</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          required
+          class="w-80 text-surface-200 p-1"
+        />
+        <br />
+
+        <label for="team">Team Name (not required)</label>
+        <input
+          type="text"
+          id="team"
+          name="team"
+          class="w-80 text-surface-200 p-1"
+        />
+        <br />
+
+        <button
+          type="submit"
+          class="rounded-xl bg-primary-500 hover:bg-primary-400 text-black"
+          >Submit</button
         >
-          <label for="name" class="">Primary Account (with #NA1 etc)</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            class="w-80 text-surface-200 p-1"
-          />
-          <br />
 
-          <label for="team">Team Name (not required)</label>
-          <input
-            type="text"
-            id="team"
-            name="team"
-            class="w-80 text-surface-200 p-1"
-          />
-          <br />
-
-          <button
-            type="submit"
-            class="rounded-xl bg-primary-500 hover:bg-primary-400 text-black"
-            >Submit</button
-          >
-
-          {#if form?.error}
-            <div class="notice error text-red-400 font-bold italic">
-              {form.error}
-            </div>
-          {/if}
-          {#if form?.message}
-            <p class="font-bold italic text-white">{form.message}</p>
-          {/if}
-        </form>
-        <!-- Display player listing -->
-      </div>
+        {#if form?.error}
+          <div class="notice error text-red-400 font-bold italic">
+            {form.error}
+          </div>
+        {/if}
+        {#if form?.message}
+          <p class="font-bold italic text-white">{form.message}</p>
+        {/if}
+      </form>
     </CollapsibleSection>
 
     <CollapsibleSection headerText="Add Account to Player">
