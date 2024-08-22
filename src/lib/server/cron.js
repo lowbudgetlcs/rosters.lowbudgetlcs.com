@@ -3,6 +3,7 @@ import { players } from '$lib/server/database/appSchema';
 import { fetchNameByPuuid } from '$lib/server/riot';
 import { app_db } from '$lib/server/database/db';
 import { Cron } from 'croner';
+import { sleep } from '$lib/utils';
 
 export function initCron() {
   // Summoner Name refresh
@@ -11,6 +12,7 @@ export function initCron() {
     const playerList = await app_db.select({ id: players.id, puuid: players.primaryRiotPuuid, name: players.summonerName }).from(players);
     for (const player of playerList) {
       const { error, name } = await fetchNameByPuuid(player.puuid);
+      sleep(SMALLE_RATE);
       if (error) {
         console.error(error);
       } else {
