@@ -64,20 +64,9 @@ export async function insertTeam(team) {
   return { message: 'Team inserted successfully.' };
 }
 
-export async function retrieveAllTeamsByDivision(divisionId) {
-  try {
-    const divisionTeams = await app_db.select().from(teams).where(eq(teams.division_id, divisionId));
-    return { teams: divisionTeams };
-  } catch (e) {
-    console.log(e);
-    return { error: "Error retrieving teams from database, contact ruuffian." };
-  }
-}
-
 export async function fetchTeamListing() {
   try {
     const teamsFetch = await app_db.select({ teamName: teams.name, divisionName: divisions.name }).from(teams).leftJoin(divisions, eq(teams.divisionId, divisions.id));
-    console.log(teamsFetch);
     return { teamListing: teamsFetch };
   } catch (error) {
     console.error(error);
