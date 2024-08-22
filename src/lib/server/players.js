@@ -74,6 +74,32 @@ export async function fetchPlayerListing() {
 
 }
 
+// player = { name = gameName#tagLine }
+export async function removePlayerFromTeam(player) {
+  const { name } = player;
+  if (!name) {
+    return { error: "Missing required data." };
+  }
+  const { error, puuid } = await fetchPuuid(name);
+  if (error) {
+    return { error: error };
+  }
+
+  const playerFetch = await app_db.select().from(players).where(eq(players.primaryRiotPuuid, puuid));
+  if (playerFetch.length === 0) {
+    return { error: `No player '${name} found in database.` };
+  }
+
+  try {
+    await app_db.update(players).set({ teamId: null }).where(eq(players.id, playerFetch[0].id));
+  } catch (error) {
+    console.error(error);
+    return { error: "Error updating team id, please contact ruuffian." };
+  }
+
+  return { message: `Successfully kicked '${name}'.` };
+}
+
 // batch = { batch: "player,team\nplayer,team\n..."}
 export async function batchInsertPlayers(data) {
   const { batch } = data;

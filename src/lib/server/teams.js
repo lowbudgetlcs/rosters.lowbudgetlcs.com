@@ -75,5 +75,5 @@ export async function retrieveAllTeamsByDivision(divisionId) {
 }
 
 export async function fetchTeamListing() {
-  return { message: "Hello." };
+  return { teams: [{ name: "Hello", divisionName: "World" }] };
 }
