@@ -74,22 +74,29 @@ export async function fetchPlayerListing() {
 
 }
 
-// batch = { batch: "player,team\nplayer,team\n"}
+// batch = { batch: "player,team\nplayer,team\n..."}
 export async function batchInsertPlayers(data) {
   const { batch } = data;
   let insertCount = 0;
   let errorCount = 0;
   const rows = batch.split("\n");
+  if (batch.length === 0) {
+    return { error: "Please enter data" };
+  }
   for (const row of rows) {
     const [player, team] = row.split(",").map(s => s.trim());
+    if (!player) {
+      continue;
+    }
     const { _, error } = await insertPlayer({ name: player, team: team });
     sleep(SMALL_RATE);
     if (error) {
-      errorCount++;
       console.error(`Error inserting ${row}: ${error}`);
+      errorCount++;
     } else {
       insertCount++;
     }
   }
-  return { message: `Inserted ${insertCount} player(s) with ${errorCount} errors. Contact ruuffian for details on errors.` };
+  const msg = `Inserted ${insertCount} player(s) with ${errorCount} errors. Contact ruuffian for details on errors.`;
+  return { message: msg };
 }

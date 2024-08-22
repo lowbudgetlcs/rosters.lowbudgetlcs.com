@@ -23,11 +23,11 @@ export const actions = {
       });
     }
 
-    const { error, message } = batchInsertPlayers(data);
+    const { error, message } = await batchInsertPlayers(data);
 
     if (error) {
       return fail(401, {
-        error: error
+        error
       });
     }
     return { message };
