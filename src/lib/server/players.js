@@ -74,6 +74,36 @@ export async function fetchPlayerListing() {
 
 }
 
+// data = { name = gameName#tagLine, team = name }
+export async function addPlayerToTeam(data) {
+  const { name, team } = data;
+  if (!name || !team) {
+    return { error: "Missing required data." };
+  }
+  const { error, puuid } = await fetchPuuid(name);
+  if (error) {
+    return { error: error };
+  }
+  const playerFetch = await app_db.select().from(players).where(eq(players.primaryRiotPuuid, puuid));
+  if (playerFetch.length === 0) {
+    return { error: `No player '${name} found in database.` };
+  }
+
+  const teamFetch = await app_db.select().from(teams).where(sql`lower(${teams.name}) = lower(${team})`);
+  if (teamFetch.length === 0) {
+    return { error: `No team '${team}' found in database.` };
+  }
+
+  try {
+    await app_db.update(players).set({ teamId: teamFetch[0].id }).where(eq(players.id, playerFetch[0].id));
+  } catch (error) {
+    console.error(error);
+    return { error: "Error updating team id, please contact ruuffian." };
+  }
+  return { message: `Successfully added '${playerFetch[0].summonerName}' to '${teamFetch[0].name}'.` };
+
+}
+
 // player = { name = gameName#tagLine }
 export async function removePlayerFromTeam(player) {
   const { name } = player;
@@ -97,7 +127,7 @@ export async function removePlayerFromTeam(player) {
     return { error: "Error updating team id, please contact ruuffian." };
   }
 
-  return { message: `Successfully kicked '${name}'.` };
+  return { message: `Successfully kicked '${playerFetch[0].summonerName}'.` };
 }
 
 // batch = { batch: "player,team\nplayer,team\n..."}

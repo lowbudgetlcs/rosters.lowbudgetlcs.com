@@ -80,12 +80,46 @@
       </form>
     </CollapsibleSection>
     <CollapsibleSection headerText="Add Player to Team">
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque
-        officiis quia blanditiis tempora. Nihil voluptate asperiores incidunt
-        eius, esse sit sunt, facilis nisi voluptas perspiciatis, fuga unde
-        placeat enim. Totam.
-      </p>
+      <form
+        use:enhance
+        method="POST"
+        action="?/addPlayer"
+        class="flex flex-col w-full rounded-xl p-2 bg-surface-300"
+      >
+        <label for="name">Player Name (name#tag)</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="w-80 text-surface-200 p-1"
+          required
+        />
+        <br />
+        <label for="team">Team Name</label>
+        <input
+          type="text"
+          id="team"
+          name="team"
+          class="w-80 text-surface-200 p-1"
+          required
+        />
+        <br />
+        <button
+          type="submit"
+          class="rounded-xl bg-primary-500 hover:bg-primary-400 text-black"
+          >Submit</button
+        >
+        {#if form?.error}
+          <p class="text-red-400 font-bold italic">
+            {form.error}
+          </p>
+        {/if}
+        {#if form?.message}
+          <p class="font-bold italic text-white">
+            {form.message}
+          </p>
+        {/if}
+      </form>
     </CollapsibleSection>
     <CollapsibleSection headerText="Remove Player from Team">
       <form
