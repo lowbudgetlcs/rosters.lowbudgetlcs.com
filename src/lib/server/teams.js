@@ -75,5 +75,13 @@ export async function retrieveAllTeamsByDivision(divisionId) {
 }
 
 export async function fetchTeamListing() {
-  return { teams: [{ name: "Hello", divisionName: "World" }] };
+  try {
+    const teamsFetch = await app_db.select({ teamName: teams.name, divisionName: divisions.name }).from(teams).leftJoin(divisions, eq(teams.divisionId, divisions.id));
+    console.log(teamsFetch);
+    return { teamListing: teamsFetch };
+  } catch (error) {
+    console.error(error);
+    return { error: "Error while fetching team listing" };
+  }
+
 }

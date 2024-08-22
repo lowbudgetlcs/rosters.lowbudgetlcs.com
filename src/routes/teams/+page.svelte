@@ -155,12 +155,7 @@
       </form>
     </CollapsibleSection>
     <CollapsibleSection headerText="Change Captain">
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque
-        officiis quia blanditiis tempora. Nihil voluptate asperiores incidunt
-        eius, esse sit sunt, facilis nisi voluptas perspiciatis, fuga unde
-        placeat enim. Totam.
-      </p>
+      <p>TBD</p>
     </CollapsibleSection>
   </div>
   <!-- Display team listing -->
@@ -169,9 +164,9 @@
       <li>{data.error}</li>
     {:else}
       <ul>
-        {#each data.teamListing as team}
+        {#each data.teams as team}
           <li class="flex flex-row">
-            <p class="mx-2">{team.name}</p>
+            <p class="mx-2">'{team.teamName}'</p>
             <p class="mx-2">
               {team?.divisionName ? team.divisionName : "NO_DIVISION"}
             </p>

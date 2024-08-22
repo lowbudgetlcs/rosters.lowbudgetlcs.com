@@ -3,22 +3,11 @@ import { insertTeam, fetchTeamListing } from '$lib/server/teams';
 import { fetchPlayerListing, removePlayerFromTeam, addPlayerToTeam } from '$lib/server/players';
 
 export async function load() {
-  const data = {
-    errors: []
-  };
-
-  const { errorP, players } = await fetchPlayerListing();
-  if (errorP) {
-    data.errors.push(errorP);
+  const { error, teamListing } = await fetchTeamListing();
+  if (error) {
+    return { error: error };
   } else {
-    data.playerListing = players;
-  }
-
-  const { errorT, teams } = await fetchTeamListing();
-  if (errorT) {
-    data.errors.push(errorT);
-  } else {
-    data.teamListing = teams;
+    return { teams: teamListing };
   }
   return data;
 }
