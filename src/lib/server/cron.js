@@ -12,7 +12,7 @@ export function initCron() {
     const playerList = await app_db.select({ id: players.id, puuid: players.primaryRiotPuuid, name: players.summonerName }).from(players);
     for (const player of playerList) {
       const { error, name } = await fetchNameByPuuid(player.puuid);
-      sleep(SMALLE_RATE);
+      sleep(SMALL_RATE);
       if (error) {
         console.error(error);
       } else {
