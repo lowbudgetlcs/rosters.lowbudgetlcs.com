@@ -69,6 +69,7 @@ jobs:
             echo ORIGIN="${{ secrets.ORIGIN }}" >> .env
             echo JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" >> .env
             echo PROVIDER_ID="${{ secrets.PROVIDER_ID }}" >> .env
+            echo SMALL_RATE=20 >> .env
             docker-compose down
             docker-compose pull
             docker-compose up -d
