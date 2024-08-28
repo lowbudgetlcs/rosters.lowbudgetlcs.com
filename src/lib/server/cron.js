@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { eq } from 'drizzle-orm';
 import { players } from '$lib/server/database/appSchema';
 import { fetchNameByPuuid } from '$lib/server/riot';
