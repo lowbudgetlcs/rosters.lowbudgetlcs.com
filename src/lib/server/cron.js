@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { eq } from 'drizzle-orm';
 import { players } from '$lib/server/database/appSchema';
 import { fetchNameByPuuid } from '$lib/server/riot';
@@ -12,7 +13,7 @@ export function initCron() {
     const playerList = await app_db.select({ id: players.id, puuid: players.primaryRiotPuuid, name: players.summonerName }).from(players);
     for (const player of playerList) {
       const { error, name } = await fetchNameByPuuid(player.puuid);
-      sleep(SMALL_RATE);
+      sleep(process.env.SMALL_RATE);
       if (error) {
         console.error(error);
       } else {
