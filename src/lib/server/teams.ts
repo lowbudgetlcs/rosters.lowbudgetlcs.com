@@ -3,10 +3,8 @@ import { teams, divisions, players } from "$lib/server/database/schema";
 import { fetchPuuid } from "$lib/server/riot";
 import { sql, eq } from "drizzle-orm";
 import { app_db } from "$lib/server/database/db";
-import { sleep } from "$lib/utils";
 import type { Team } from "$lib/server/types";
 
-const SMALL_RATE = Number(process.env.SMALL_RATE);
 
 function getGroupNumber(group: string) {
   return group.toUpperCase().charCodeAt(0) - "A".charCodeAt(0) + 1;
@@ -46,7 +44,6 @@ export async function insertTeam(team: Team) {
   if (captain) {
     // Fetch riot PUUID
     const { error, puuid } = await fetchPuuid(captain);
-    sleep(SMALL_RATE);
     if (error) {
       console.error(error);
       return { error: error };

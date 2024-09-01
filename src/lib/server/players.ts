@@ -4,10 +4,8 @@ import { app_db } from "$lib/server/database/db";
 import { players, teams } from "$lib/server/database/schema";
 import { insertAccount } from "$lib/server/accounts";
 import { fetchPuuid } from "$lib/server/riot";
-import { sleep } from "$lib/utils";
 import type { Account, Player } from "./types";
 
-const SMALL_RATE = Number(process.env.SMALL_RATE);
 
 export async function insertPlayer(player: Player) {
   const { name, team } = player;
@@ -16,7 +14,6 @@ export async function insertPlayer(player: Player) {
 
   // Fetch puuid
   const { error, puuid } = await fetchPuuid(name);
-  sleep(SMALL_RATE);
   if (error) {
     console.error(error);
     return { error: error };
@@ -183,7 +180,6 @@ export async function batchInsertPlayers(batch: Player[]) {
       continue;
     }
     const { error } = await insertPlayer({ name: player, team: team });
-    sleep(SMALL_RATE);
     if (error) {
       console.error(`Error inserting ${row}: ${error}`);
       errorCount++;

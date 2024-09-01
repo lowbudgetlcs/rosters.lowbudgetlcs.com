@@ -1,6 +1,11 @@
 import "dotenv/config";
 import { RiotAPI, RiotAPITypes, PlatformId } from "@fightmegg/riot-api";
 
+const config: RiotAPITypes.Config = {
+  debug: process.env.NODE_ENV != "PROD",
+  
+};
+
 export async function fetchPuuid(name: string) {
   // name = gameName#tag
   const [gameName, tag] = name.split("#");
