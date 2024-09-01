@@ -8,5 +8,5 @@ const sqlite = Database('sqlite.db');
 export const meta_db = drizzleLite(sqlite);
 
 const connectionString = process.env.POSTGRES_CONNECTION_URI;
-const pg = postgres(connectionString);
+const pg = postgres(connectionString, { prepare: false });
 export const app_db = drizzlePg(pg);
