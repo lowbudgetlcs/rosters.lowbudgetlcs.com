@@ -41,12 +41,14 @@ export async function insertPlayer(player) {
   // Insert player
   let player_id;
   try {
-    const row = await app_db.insert(players).values({
-      primaryRiotPuuid: puuid,
-      teamId: team_id || null,
-      summonerName: name,
-    }).returning();
-    player_id = row[0].id;
+    await app_db.transaction(async (tx) => {
+      const row = await tx.insert(players).values({
+        primaryRiotPuuid: puuid,
+        teamId: team_id || null,
+        summonerName: name,
+      }).returning();
+      player_id = row[0].id;
+    });
   } catch (error) {
     console.error(error);
     return { error: 'Error inserting player record.' };
@@ -95,7 +97,9 @@ export async function addPlayerToTeam(data) {
   }
 
   try {
-    await app_db.update(players).set({ teamId: teamFetch[0].id }).where(eq(players.id, playerFetch[0].id));
+    await app_db.transaction(async (tx) => {
+      await tx.update(players).set({ teamId: teamFetch[0].id }).where(eq(players.id, playerFetch[0].id));
+    });
   } catch (error) {
     console.error(error);
     return { error: "Error updating team id, please contact ruuffian." };
@@ -121,7 +125,9 @@ export async function removePlayerFromTeam(player) {
   }
 
   try {
-    await app_db.update(players).set({ teamId: null }).where(eq(players.id, playerFetch[0].id));
+    await app_db.transaction(async (tx) => {
+      await tx.update(players).set({ teamId: null }).where(eq(players.id, playerFetch[0].id));
+    });
   } catch (error) {
     console.error(error);
     return { error: "Error updating team id, please contact ruuffian." };

@@ -15,10 +15,12 @@ export async function insertAccount(account) {
   }
   // Insert
   try {
-    await app_db.insert(accounts).values({
-      riotPuuid: puuid,
-      playerId: player_id,
-      isPrimary: is_primary
+    await app_db.transaction(async (tx) => {
+      await tx.insert(accounts).values({
+        riotPuuid: puuid,
+        playerId: player_id,
+        isPrimary: is_primary
+      });
     });
   } catch (error) {
     console.error(error);

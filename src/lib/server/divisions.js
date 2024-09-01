@@ -22,12 +22,14 @@ export async function insertDivision(division) {
   }
   // Write to database
   try {
-    await app_db.insert(divisions).values({
-      name: name,
-      groups: groups,
-      description: description,
-      tournamentId: tid,
-      providerId: process.env.PROVIDER_ID,
+    await app_db.transaction(async (tx) => {
+      await tx.insert(divisions).values({
+        name: name,
+        groups: groups,
+        description: description,
+        tournamentId: tid,
+        providerId: process.env.RIOT_PROVIDER_ID,
+      });
     });
   } catch (error) {
     console.error(error);

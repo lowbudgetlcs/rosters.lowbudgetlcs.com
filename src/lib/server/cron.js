@@ -20,9 +20,11 @@ export function initCron() {
         const buildName = `${name.gameName}#${name.tagLine}`;
         if (player.name != buildName) {
           console.info(`Updated ${player.name} to ${buildName} (id ${player.id})`);
-          await app_db.update(players)
-            .set({ summonerName: buildName })
-            .where(eq(players.id, player.id));
+          await app_db.transaction(async (tx) => {
+            await tx.update(players)
+              .set({ summonerName: buildName })
+              .where(eq(players.id, player.id));
+          });
         }
       }
     }

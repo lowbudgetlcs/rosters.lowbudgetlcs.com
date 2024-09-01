@@ -7,7 +7,7 @@ export async function fetchPuuid(name) {
   try {
     const res = await fetch(url, {
       headers: {
-        "X-Riot-Token": process.env.RIOT_TOKEN ?? ""
+        "X-Riot-Token": process.env.RIOT_API_TOKEN ?? ""
       }
     });
     const body = await res.json();
@@ -30,7 +30,7 @@ export async function fetchNameByPuuid(puuid) {
   try {
     const res = await fetch(url, {
       headers: {
-        "X-Riot-Token": process.env.RIOT_TOKEN ?? ""
+        "X-Riot-Token": process.env.RIOT_API_TOKEN ?? ""
       }
     });
     const body = await res.json();

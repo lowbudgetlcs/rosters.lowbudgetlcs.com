@@ -50,12 +50,14 @@ export async function insertTeam(team) {
   }
 
   try {
-    await app_db.insert(teams).values({
-      name: name,
-      divisionId: division_id,
-      groupId: group,
-      captainId: captain_id || null,
-      logo: logo
+    await app_db.transaction(async (tx) => {
+      await tx.insert(teams).values({
+        name: name,
+        divisionId: division_id,
+        groupId: group,
+        captainId: captain_id || null,
+        logo: logo
+      });
     });
   } catch (error) {
     console.error(error);
