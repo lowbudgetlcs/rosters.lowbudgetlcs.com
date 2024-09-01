@@ -1,57 +1,46 @@
 import "dotenv/config";
 import { RiotAPI, RiotAPITypes, PlatformId } from "@fightmegg/riot-api";
+import type { ErroredResponse } from "./types";
 
 const config: RiotAPITypes.Config = {
   debug: process.env.NODE_ENV != "PROD",
-  
 };
 
-export async function fetchPuuid(name: string) {
+const riot = new RiotAPI(process.env.RIOT_API_TOKEN!!, config);
+
+export async function fetchPuuid(riotId: string): Promise<ErroredResponse> {
   // name = gameName#tag
-  const [gameName, tag] = name.split("#");
-  const url = `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tag}`;
+  const [gameName, tagLine] = riotId.split("#");
   try {
-    const res = await fetch(url, {
-      headers: {
-        "X-Riot-Token": process.env.RIOT_API_TOKEN ?? "",
-      },
+    const account = await riot.account.getByRiotId({
+      region: PlatformId.AMERICAS,
+      gameName,
+      tagLine,
     });
-    const body = await res.json();
-    if (!res.ok) {
-      console.error(`Recieved ${res.status} ${JSON.stringify(body)}`);
-      if (res.status === 404) {
-        return {
-          error: `Riot lookup for '${name}' failed, check for typos in player name. Ensure you include the '#NA1'`,
-        };
-      }
-      return { error: `Error fetching '${name}' puuid, contact ruuffian.` };
-    }
-    return { puuid: body.puuid };
-  } catch (error) {
-    console.error(error);
-    return { error: `Error fetching '${name}' puuid, contact ruuffian.` };
+    return { message: account.puuid };
+  } catch (e: any) {
+    const msg = `Riot lookup for ${riotId} failed.`;
+    if (e instanceof Error) console.error(e.message);
+    return { error: msg };
   }
 }
 
-export async function fetchNameByPuuid(puuid: string) {
-  const url = `https://americas.api.riotgames.com/riot/account/v1/accounts/by-puuid/${puuid}`;
+export async function fetchNameByPuuid(
+  puuid: string
+): Promise<ErroredResponse> {
   try {
-    const res = await fetch(url, {
-      headers: {
-        "X-Riot-Token": process.env.RIOT_API_TOKEN ?? "",
-      },
+    const account = await riot.account.getByPUUID({
+      region: PlatformId.AMERICAS,
+      puuid,
     });
-    const body = await res.json();
-    if (!res.ok) {
-      console.error(`Recieved ${res.status} ${JSON.stringify(body)}`);
-      if (res.status === 404) {
-        return { error: "Failed to find player with that puuid." };
-      }
-      return { error: `Error fetching '${puuid}' puuid, contact ruuffian.` };
-    }
-    return { name: { gameName: body.gameName, tagLine: body.tagLine } };
-  } catch (error) {
-    console.error(error);
-    return { error: `Error fetching '${puuid}' puuid, contact ruuffian.` };
+    if (account.gameName && account.tagLine)
+      return { message: `${account.gameName}#${account.tagLine}` };
+    else
+      return {
+        error: `Coult not find name for ${puuid}. Are you using the correct API key?`,
+      };
+  } catch (e) {
+    if (e instanceof Error) console.error(e.message);
+    return { error: `Could not find name for ${puuid}.` };
   }
 }

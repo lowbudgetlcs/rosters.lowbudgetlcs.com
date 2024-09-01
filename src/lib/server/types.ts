@@ -1,3 +1,8 @@
+export type ErroredResponse = {
+  message?: string;
+  error?: string;
+};
+
 export type Account = {
   puuid: string;
   player_id: number;
