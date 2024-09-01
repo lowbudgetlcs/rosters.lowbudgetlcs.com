@@ -6,35 +6,46 @@ import { app_db } from "$lib/server/database/db";
 import { Cron } from "croner";
 
 export function initCron() {
-  // Summoner Name refresh
-  Cron("35 23 * * *", { timezone: "America/New_York" }, async () => {
-    console.info(`SUMMONER REFRESH STARTED @${new Date()}`);
-    const playerList = await app_db
-      .select({
-        id: players.id,
-        puuid: players.primaryRiotPuuid,
-        name: players.summonerName,
-      })
-      .from(players);
-    for (const player of playerList) {
-      const { error, name } = await fetchNameByPuuid(player.puuid);
-      if (error) {
-        console.error(error);
-      } else {
-        const buildName = `${name?.gameName}#${name?.tagLine}`;
-        if (player.name != buildName) {
-          console.info(
-            `Updated ${player.name} to ${buildName} (id ${player.id})`,
-          );
+  const nameRefreshJob = Cron("30 04 * * *", { timezone: "America/New_York" });
+  nameRefreshJob.schedule(nameRefresh);
+  nameRefreshJob.trigger();
+}
+
+// Summoner Name refresh
+const nameRefresh = async () => {
+  const start = new Date();
+  console.info(`SUMMONER REFRESH STARTED @${start}}`);
+  const playerList = await app_db
+    .select({
+      id: players.id,
+      puuid: players.primaryRiotPuuid,
+      name: players.summonerName,
+    })
+    .from(players);
+  for (const player of playerList) {
+    const { error, message: riotId } = await fetchNameByPuuid(player.puuid);
+    if (error || !riotId) {
+      if (error) console.error(error);
+      else console.error("No riotId recieved.");
+    } else {
+      if (player.name != riotId) {
+        try {
+          console.info(`Updated ${player.name} to ${riotId} (id ${player.id})`);
           await app_db.transaction(async (tx) => {
             await tx
               .update(players)
-              .set({ summonerName: buildName })
+              .set({ summonerName: riotId })
               .where(eq(players.id, player.id));
           });
+        } catch (e: any) {
+          // if (e instanceof Error) console.error(e.message);
+          console.warn(`Could not update '${player.name}' to '${riotId}'.`);
         }
       }
     }
-    console.info(`SUMMONER REFRESH FINISHED @${new Date()}`);
-  }).trigger();
-}
+  }
+  const end = new Date();
+  console.info(
+    `SUMMONER REFRESH FINISHED @${end}. Took ${new Date(end.valueOf() - start.valueOf()).toISOString().substring(11, 8)}`
+  );
+};
