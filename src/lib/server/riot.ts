@@ -8,6 +8,11 @@ const config: RiotAPITypes.Config = {
 
 const riot = new RiotAPI(process.env.RIOT_API_TOKEN!!, config);
 
+/**
+ *
+ * @param riotId riotId - gameName#tagLine
+ * @returns {Promise<ErroredResponse>} Message contains the encrypted puuid
+ */
 export async function fetchPuuid(riotId: string): Promise<ErroredResponse> {
   // name = gameName#tag
   const [gameName, tagLine] = riotId.split("#");
@@ -25,6 +30,11 @@ export async function fetchPuuid(riotId: string): Promise<ErroredResponse> {
   }
 }
 
+/**
+ *
+ * @param puuid Encrypted puuid
+ * @returns {Promise<ErroredResponse>} Message contains 'gameName#tagLine'
+ */
 export async function fetchNameByPuuid(
   puuid: string
 ): Promise<ErroredResponse> {
