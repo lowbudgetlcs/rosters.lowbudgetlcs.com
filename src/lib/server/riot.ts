@@ -14,8 +14,9 @@ const riot = new RiotAPI(process.env.RIOT_API_TOKEN!!, config);
  * @returns {Promise<ErroredResponse>} Message contains the encrypted puuid
  */
 export async function fetchPuuid(riotId: string): Promise<ErroredResponse> {
-  // name = gameName#tag
   const [gameName, tagLine] = riotId.split("#");
+  if (!gameName || !tagLine)
+    return { error: `'${riotId}' not properly formatted: gameName#tagLine` };
   try {
     const account = await riot.account.getByRiotId({
       region: PlatformId.AMERICAS,
@@ -24,9 +25,8 @@ export async function fetchPuuid(riotId: string): Promise<ErroredResponse> {
     });
     return { message: account.puuid };
   } catch (e: any) {
-    const msg = `Riot lookup for ${riotId} failed.`;
     if (e instanceof Error) console.error(e.message);
-    return { error: msg };
+    return { error: `Riot lookup for '${riotId}' failed.` };
   }
 }
 
@@ -47,10 +47,12 @@ export async function fetchNameByPuuid(
       return { message: `${account.gameName}#${account.tagLine}` };
     else
       return {
-        error: `Coult not find name for ${puuid}. Are you using the correct API key?`,
+        error: `'${account.gameName}' or '${account.tagLine}' empty`,
       };
   } catch (e) {
     if (e instanceof Error) console.error(e.message);
-    return { error: `Could not find name for ${puuid}.` };
+    return {
+      error: `Could not find name for '${puuid}'. Are you using the correct API Key?`,
+    };
   }
 }
