@@ -4,6 +4,7 @@ import { users } from '$lib/server/database/metaSchema';
 import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
 import { initCron } from '$lib/server/cron';
+import type {Handle} from "@sveltejs/kit"
 
 initCron();
 
@@ -15,7 +16,7 @@ export const handle = async ({ event, resolve }) => {
     const token = authCookie.split(' ')[1];
 
     try {
-      const jwtUser = jwt.verify(token, process.env.JWT_SECRET_KEY);
+      const jwtUser = jwt.verify(token, process.env.JWT_SECRET_KEY!!);
       if (typeof jwtUser === "string") {
         throw new Error("Something went wrong");
       }

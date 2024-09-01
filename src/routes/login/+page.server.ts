@@ -1,8 +1,9 @@
 import { loginUser } from '$lib/server/users';
 import { redirect, fail } from '@sveltejs/kit';
+import type { PageServerLoad, Actions } from './$types'
 
-export const load = (event) => {
-  const user = event.locals.user;
+export const load: PageServerLoad = ({ locals }) => {
+  const user = locals.user;
 
   if (user) {
     throw redirect(302, '/');
@@ -10,15 +11,15 @@ export const load = (event) => {
 };
 
 export const actions = {
-  login: async (event) => {
-    const data = Object.fromEntries(await event.request.formData());
-    if (!('username' in data) || !("password" in data)) {
+  login: async ({ cookies, request }) => {
+    const data = await request.formData();
+    const username = data.get("username") as string
+    const password = data.get("password") as string
+    if (!username || !password) {
       return fail(400, {
         error: 'Missing username or password.'
       });
     }
-
-    const { username, password } = data;
 
     const { error, token } = await loginUser(username, password);
 
@@ -28,7 +29,7 @@ export const actions = {
       });
     }
 
-    event.cookies.set('AuthorizationToken', `Bearer ${token}`, {
+    cookies.set('AuthorizationToken', `Bearer ${token}`, {
       httpOnly: true,
       path: '/',
       secure: true,
@@ -38,4 +39,4 @@ export const actions = {
 
     throw redirect(302, '/');
   },
-};
+} satisfies Actions;

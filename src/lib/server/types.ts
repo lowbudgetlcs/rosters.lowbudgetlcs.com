@@ -7,7 +7,7 @@ export type Account = {
 export type Division = {
   name: string,
   groups: number,
-  description: string,
+  description: string | undefined,
   tid: number
 }
 
@@ -27,4 +27,9 @@ export type Team = {
   group: string,
   captain: string | null,
   logo: string | null
+}
+
+export type SessionUser = {
+  id: number,
+  name: string
 }

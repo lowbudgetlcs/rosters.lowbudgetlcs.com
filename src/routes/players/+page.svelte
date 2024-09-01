@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
   import { enhance, applyAction } from "$app/forms";
   import CollapsibleSection from "$lib/components/CollapsibleSection.svelte";
+  import type { PageData, ActionData } from "./$types";
 
-  export let form;
-  export let data;
+  export let form: ActionData;
+  export let data: PageData;
   let formLoading = false;
 </script>
 
