@@ -1,13 +1,10 @@
 import { app_db } from '$lib/server/database/db';
 import { divisions, series, teams } from '$lib/server/database/schema';
 import { eq, and } from 'drizzle-orm';
+import type { League } from '$lib/server/types'
 
 const group = ['A', 'B', 'C', 'D'];
 
-type League = {
-  div: number,
-  group: string
-}
 
 export async function generateSeries() {
   // Fetch divisions

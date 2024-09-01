@@ -2,13 +2,8 @@ import 'dotenv/config';
 import { app_db } from '$lib/server/database/db';
 import { sql, eq } from 'drizzle-orm';
 import { divisions } from '$lib/server/database/schema';
+import type { Division } from './types';
 
-type Division = {
-  name: string,
-  groups: number,
-  description: string,
-  tid: number
-}
 
 export async function insertDivision(division: Division) {
   const { name, groups, description = "", tid } = division;

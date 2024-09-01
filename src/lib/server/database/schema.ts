@@ -127,7 +127,7 @@ export const divisions = pgTable("divisions", {
 	description: text("description"),
 	providerId: integer("provider_id").notNull(),
 	tournamentId: integer("tournament_id").notNull(),
-	groups: integer("groups"),
+	groups: integer("groups").notNull(),
 },
 (table) => {
 	return {

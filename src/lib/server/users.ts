@@ -4,7 +4,7 @@ import { users } from '$lib/server/database/metaSchema';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 
-export async function loginUser(username, password) {
+export async function loginUser(username: string, password: string) {
   if (!username || !password) return { error: 'Missing username or password.' };
 
   const fetchedUser = await meta_db.select().from(users).where(eq(users.username, username)).limit(1);
@@ -29,7 +29,7 @@ export async function loginUser(username, password) {
     username: user.username
   };
 
-  const token = jwt.sign(jwtUser, process.env.JWT_SECRET_KEY, {
+  const token = jwt.sign(jwtUser, process.env.JWT_SECRET_KEY!!, {
     expiresIn: '1d'
   });
 

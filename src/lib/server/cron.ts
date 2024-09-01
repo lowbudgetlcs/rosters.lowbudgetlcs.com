@@ -17,7 +17,7 @@ export function initCron() {
       if (error) {
         console.error(error);
       } else {
-        const buildName = `${name.gameName}#${name.tagLine}`;
+        const buildName = `${name?.gameName}#${name?.tagLine}`;
         if (player.name != buildName) {
           console.info(`Updated ${player.name} to ${buildName} (id ${player.id})`);
           await app_db.transaction(async (tx) => {

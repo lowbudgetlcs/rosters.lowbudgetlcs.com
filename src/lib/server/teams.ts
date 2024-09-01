@@ -4,6 +4,7 @@ import { fetchPuuid } from '$lib/server/riot';
 import { sql, eq } from 'drizzle-orm';
 import { app_db } from '$lib/server/database/db';
 import { sleep } from '$lib/utils'
+import type { Team } from '$lib/server/types';
 
 const SMALL_RATE = Number(process.env.SMALL_RATE);
 
@@ -11,13 +12,6 @@ function getGroupNumber(group: string) {
   return group.toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0) + 1;
 }
 
-type Team = {
-  name: string,
-  division: string,
-  group: string,
-  captain: string | null,
-  logo: string | null
-}
 
 export async function insertTeam(team: Team) {
   const { name, division, group, captain = "", logo = "" } = team;

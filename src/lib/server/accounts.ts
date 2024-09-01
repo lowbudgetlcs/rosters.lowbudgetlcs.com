@@ -1,12 +1,8 @@
 import { app_db } from '$lib/server/database/db';
 import { count, eq } from 'drizzle-orm';
 import { accounts } from '$lib/server/database/schema';
+import type { Account } from './types';
 
-type Account = {
-  puuid: string,
-  player_id: number,
-  is_primary: boolean
-}
 
 export async function insertAccount(account: Account) {
   const { puuid, player_id, is_primary } = account;
