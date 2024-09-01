@@ -1,16 +1,22 @@
-import 'dotenv/config';
-import { eq } from 'drizzle-orm';
-import { players } from '$lib/server/database/schema';
-import { fetchNameByPuuid } from '$lib/server/riot';
-import { app_db } from '$lib/server/database/db';
-import { Cron } from 'croner';
-import { sleep } from '$lib/utils';
+import "dotenv/config";
+import { eq } from "drizzle-orm";
+import { players } from "$lib/server/database/schema";
+import { fetchNameByPuuid } from "$lib/server/riot";
+import { app_db } from "$lib/server/database/db";
+import { Cron } from "croner";
+import { sleep } from "$lib/utils";
 
 export function initCron() {
   // Summoner Name refresh
-  Cron('35 23 * * *', { timezone: 'America/New_York' }, async () => {
+  Cron("35 23 * * *", { timezone: "America/New_York" }, async () => {
     console.info(`SUMMONER REFRESH STARTED @${new Date()}`);
-    const playerList = await app_db.select({ id: players.id, puuid: players.primaryRiotPuuid, name: players.summonerName }).from(players);
+    const playerList = await app_db
+      .select({
+        id: players.id,
+        puuid: players.primaryRiotPuuid,
+        name: players.summonerName,
+      })
+      .from(players);
     for (const player of playerList) {
       const { error, name } = await fetchNameByPuuid(player.puuid);
       sleep(parseInt(process.env.SMALL_RATE!!) || 25);
@@ -19,9 +25,12 @@ export function initCron() {
       } else {
         const buildName = `${name?.gameName}#${name?.tagLine}`;
         if (player.name != buildName) {
-          console.info(`Updated ${player.name} to ${buildName} (id ${player.id})`);
+          console.info(
+            `Updated ${player.name} to ${buildName} (id ${player.id})`,
+          );
           await app_db.transaction(async (tx) => {
-            await tx.update(players)
+            await tx
+              .update(players)
               .set({ summonerName: buildName })
               .where(eq(players.id, player.id));
           });

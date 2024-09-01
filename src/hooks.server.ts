@@ -1,19 +1,19 @@
-import 'dotenv/config';
-import { meta_db } from '$lib/server/database/db';
-import { users } from '$lib/server/database/metaSchema';
-import { eq } from 'drizzle-orm';
-import jwt from 'jsonwebtoken';
-import { initCron } from '$lib/server/cron';
-import type {Handle} from "@sveltejs/kit"
+import "dotenv/config";
+import { meta_db } from "$lib/server/database/db";
+import { users } from "$lib/server/database/metaSchema";
+import { eq } from "drizzle-orm";
+import jwt from "jsonwebtoken";
+import { initCron } from "$lib/server/cron";
+import type { Handle } from "@sveltejs/kit";
 
 initCron();
 
 export const handle = async ({ event, resolve }) => {
-  const authCookie = event.cookies.get('AuthorizationToken');
+  const authCookie = event.cookies.get("AuthorizationToken");
 
   if (authCookie) {
     // Remove Bearer prefix
-    const token = authCookie.split(' ')[1];
+    const token = authCookie.split(" ")[1];
 
     try {
       const jwtUser = jwt.verify(token, process.env.JWT_SECRET_KEY!!);
@@ -21,7 +21,10 @@ export const handle = async ({ event, resolve }) => {
         throw new Error("Something went wrong");
       }
 
-      const res = await meta_db.select().from(users).where(eq(users.id, jwtUser.id));
+      const res = await meta_db
+        .select()
+        .from(users)
+        .where(eq(users.id, jwtUser.id));
 
       if (res.length == 0) {
         throw new Error("User not found");
