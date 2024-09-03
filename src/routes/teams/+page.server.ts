@@ -8,12 +8,7 @@ import {
 import type { PageServerLoad, Actions } from "./$types";
 
 export const load: PageServerLoad = async ({}) => {
-  const { error, teamListing } = await fetchTeamListing();
-  if (error) {
-    return { error: error };
-  } else {
-    return { teams: teamListing };
-  }
+  return await fetchTeamListing();
 };
 
 export const actions = {
@@ -47,15 +42,15 @@ export const actions = {
   },
   removePlayer: async ({ request }) => {
     const data = await request.formData();
-    const name = data.get("name") as string;
-    if (!name) {
+    const riotId = data.get("name") as string;
+    if (!riotId) {
       return fail(400, {
         error: "Missing required data.",
       });
     }
 
     const { error, message } = await removePlayerFromTeam({
-      name,
+      riotId,
       team: undefined,
     });
     if (error) {
@@ -67,15 +62,15 @@ export const actions = {
   },
   addPlayer: async ({ request }) => {
     const data = await request.formData();
-    const name = data.get("name") as string;
+    const riotId = data.get("name") as string;
     const team = data.get("team") as string;
-    if (!name || !team) {
+    if (!riotId || !team) {
       return fail(400, {
         error: "Missing required data.",
       });
     }
 
-    const { error, message } = await addPlayerToTeam({ name, team });
+    const { error, message } = await addPlayerToTeam({ riotId, team });
     if (error) {
       return fail(401, {
         error,

@@ -6,6 +6,11 @@ import { insertAccount } from "$lib/server/accounts";
 import { fetchPuuid } from "$lib/server/riot";
 import type { Account, ErroredResponse, Player } from "./types";
 
+/**
+ *
+ * @param player Player object to create player resource from
+ * @returns Success or failure message
+ */
 export async function insertPlayer(
   player: Player
 ): Promise<ErroredResponse<string>> {
@@ -67,7 +72,7 @@ export async function insertPlayer(
 
 /**
  *
- * @returns Message contains strinfified array of players
+ * @returns Message contains Player[]
  */
 export async function fetchPlayerListing(): Promise<ErroredResponse<Player[]>> {
   try {
@@ -85,7 +90,11 @@ export async function fetchPlayerListing(): Promise<ErroredResponse<Player[]>> {
   }
 }
 
-// data = { name = gameName#tagLine, team = name }
+/**
+ *
+ * @param player Player object to add to team
+ * @returns Success or failure message
+ */
 export async function addPlayerToTeam(
   player: Player
 ): Promise<ErroredResponse<string>> {
@@ -133,7 +142,11 @@ export async function addPlayerToTeam(
   };
 }
 
-// player = { name = gameName#tagLine }
+/**
+ *
+ * @param player Player object to kick
+ * @returns Success or failure message
+ */
 export async function removePlayerFromTeam(
   player: Player
 ): Promise<ErroredResponse<string>> {
@@ -173,6 +186,11 @@ export async function removePlayerFromTeam(
   return { message: `Successfully kicked '${playerFetch[0].summonerName}'.` };
 }
 
+/**
+ *
+ * @param batch Players to batch create
+ * @returns  Success or failure message
+ */
 export async function batchInsertPlayers(
   batch: Player[]
 ): Promise<ErroredResponse<string>> {
