@@ -3,20 +3,15 @@ import { teams, divisions, players } from "$lib/server/database/schema";
 import { fetchPuuid } from "$lib/server/riot";
 import { sql, eq } from "drizzle-orm";
 import { app_db } from "$lib/server/database/db";
-import type { Team } from "$lib/server/types";
-
+import type { ErroredResponse, Team } from "$lib/server/types";
+import { insertPlayer } from "./players";
 
 function getGroupNumber(group: string) {
   return group.toUpperCase().charCodeAt(0) - "A".charCodeAt(0) + 1;
 }
 
-export async function insertTeam(team: Team) {
+export async function insertTeam(team: Team): Promise<ErroredResponse<string>> {
   const { name, division, group, captain = "", logo = "" } = team;
-
-  // Null checks for req params
-  if (!name || !division || !group)
-    return { error: "Missing required parameter." };
-
   // Check team name exists
   const checkTeam = await app_db
     .select()
@@ -32,7 +27,7 @@ export async function insertTeam(team: Team) {
     .from(divisions)
     .where(sql`lower(${divisions.name}) = lower(${division})`);
   if (divisionId.length != 1) {
-    return { error: "No or multiple divisions with that name (how??)." };
+    return { error: `Division '${division}' not found.` };
   }
   const { division_id, groups } = divisionId[0];
   // Check group exists
@@ -43,21 +38,24 @@ export async function insertTeam(team: Team) {
   // If given captain fetch captain id
   if (captain) {
     // Fetch riot PUUID
-    const { error, puuid } = await fetchPuuid(captain);
+    const { error, message: puuid } = await fetchPuuid(captain);
     if (error) {
       console.error(error);
       return { error: error };
+    } else if (!puuid) {
+      return { error: `Did not recieve puuid for '${captain}'` };
     }
+
     // Fetch player id
     const captainId = await app_db
       .select({ captain_id: players.id })
       .from(players)
       .where(eq(players.primaryRiotPuuid, puuid));
     if (captainId.length != 1) {
-      return {
-        error:
-          "puuid fetch issue, if you are positive the player was created contact ruuffian immediately.",
-      };
+      const { error, message } = await insertPlayer({
+        riotId: captain,
+        team: name,
+      });
     }
     const { captain_id } = captainId[0];
     try {
@@ -79,13 +77,21 @@ export async function insertTeam(team: Team) {
   return { message: "Team inserted successfully." };
 }
 
-export async function fetchTeamListing() {
+export async function fetchTeamListing(): Promise<
+  ErroredResponse<
+    { team: string; division: string | null; group: string }[]
+  >
+> {
   try {
     const teamsFetch = await app_db
-      .select({ teamName: teams.name, divisionName: divisions.name })
+      .select({
+        team: teams.name,
+        division: divisions.name,
+        group: teams.groupId,
+      })
       .from(teams)
       .leftJoin(divisions, eq(teams.divisionId, divisions.id));
-    return { teamListing: teamsFetch };
+    return { message: teamsFetch };
   } catch (error) {
     console.error(error);
     return { error: "Error while fetching team listing" };

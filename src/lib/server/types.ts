@@ -1,6 +1,9 @@
-export type ErroredResponse = {
-  message?: string;
-  error?: string;
+export type ErroredResponse<T> = {
+  message?: undefined;
+  error: string;
+} | {
+  message: T,
+  error?: undefined
 };
 
 export type Account = {
@@ -17,7 +20,7 @@ export type Division = {
 };
 
 export type Player = {
-  name: string;
+  riotId: string;
   team: string | undefined;
 };
 

@@ -1,47 +1,47 @@
 import "dotenv/config";
 import { app_db } from "$lib/server/database/db";
-import { sql, eq } from "drizzle-orm";
+import { sql, count } from "drizzle-orm";
 import { divisions } from "$lib/server/database/schema";
-import type { Division } from "./types";
+import type { Division, ErroredResponse } from "$lib/server/types";
+import { createTournament } from "$lib/server/riot";
 
-export async function insertDivision(division: Division) {
-  const { name, groups, description = "", tid } = division;
-
-  if (!name || !groups || !tid) return { error: "Missing required data." };
-
+export async function insertDivision(
+  division: Division
+): Promise<ErroredResponse<string>> {
+  const { name, groups, description = "" } = division;
+  // Check name is not taken
   const divisionNameCheck = await app_db
-    .select()
+    .select({ records: count() })
     .from(divisions)
     .where(sql`lower(${divisions.name}) = lower(${name})`);
-  if (divisionNameCheck.length > 0) {
+  if (divisionNameCheck[0].records != 0) {
     return {
-      error: "Division with this name already exists.",
+      error: `Division '${name}' already exists.`,
     };
   }
-  const tournamentIdCheck = await app_db
-    .select()
-    .from(divisions)
-    .where(eq(divisions.tournamentId, tid));
-  if (tournamentIdCheck.length > 0) {
-    return {
-      error: "Division with this tournament id already exists.",
-    };
-  }
-  // Write to database
+
   try {
+    // Create tournament
+    const providerId = parseInt(process.env.providerId!!); // Need to create sesason meta data table tbh
+    const { error, message: tournamentId } = await createTournament(
+      name,
+      providerId
+    );
+    if (error) return { error: error };
+    const tid = tournamentId!!
     await app_db.transaction(async (tx) => {
       await tx.insert(divisions).values({
         name: name,
         groups: groups,
         description: description,
         tournamentId: tid,
-        providerId: parseInt(process.env.RIOT_PROVIDER_ID!!),
+        providerId: providerId,
       });
     });
-  } catch (error) {
-    console.error(error);
-    return { error: "Error inserting into database." };
+  } catch (e) {
+    if (e instanceof Error) console.error(e.message);
+    return { error: `Error while creating tournament ${name}.` };
   }
 
-  return { message: "Division created successfully." };
+  return { message: `Division '${name}' created successfully.` };
 }

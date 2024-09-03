@@ -4,86 +4,81 @@ import { app_db } from "$lib/server/database/db";
 import { players, teams } from "$lib/server/database/schema";
 import { insertAccount } from "$lib/server/accounts";
 import { fetchPuuid } from "$lib/server/riot";
-import type { Account, Player } from "./types";
+import type { Account, ErroredResponse, Player } from "./types";
 
-
-export async function insertPlayer(player: Player) {
-  const { name, team } = player;
-
-  if (!name) return { error: "Missing required data." };
+export async function insertPlayer(
+  player: Player
+): Promise<ErroredResponse<string>> {
+  const { riotId, team } = player;
 
   // Fetch puuid
-  const { error, puuid } = await fetchPuuid(name);
-  if (error) {
-    console.error(error);
-    return { error: error };
-  }
+  const { error, message: puuid } = await fetchPuuid(riotId);
+  if (error) return { error: error };
+  if (!puuid) return { error: "Did not recieve puuid, contact ruuffian." };
   // Check player doesn't exist
   const playerCount = await app_db
-    .select({ value: count() })
+    .select({ records: count() })
     .from(players)
     .where(eq(players.primaryRiotPuuid, puuid));
-  const { value: recordCount } = playerCount[0];
-  if (recordCount != 0)
+  if (playerCount[0].records != 0)
     return {
       error: "Player with that primary account already exists.",
     };
   // Query team id
-  let team_id: number | undefined;
-  if (team) {
+  const team_id = await (async (teamName: string | undefined) => {
+    if (!teamName) return 0;
+
     const teamFetch = await app_db
       .select()
       .from(teams)
-      .where(sql`lower(${teams.name}) = lower(${team})`);
+      .where(sql`lower(${teams.name}) = lower(${teamName})`);
     if (teamFetch.length != 1) {
-      return {
-        error: "Team not found.",
-      };
+      return -1;
     }
-    team_id = teamFetch[0].id;
-  }
+    return teamFetch[0].id;
+  })(team);
+  if (team_id === -1) return { error: `Could not find team '${team}.` };
   // Insert player
   try {
     await app_db.transaction(async (tx) => {
-      const row = await tx
+      const playerInsert = await tx
         .insert(players)
         .values({
           primaryRiotPuuid: puuid,
-          teamId: team_id || null,
-          summonerName: name,
+          teamId: team_id === 0 ? null : team_id,
+          summonerName: riotId,
         })
         .returning();
-      const player_id = row[0].id;
-      try {
-        const account: Account = {
-          puuid: puuid,
-          player_id: player_id,
-          is_primary: true,
-        };
-        await insertAccount(account);
-      } catch (error) {
-        console.error(error);
-        return {
-          error:
-            "Error inserting player into accounts table but player creation succeeded. Contact ruuffian immediately.",
-        };
-      }
+      const player_id = playerInsert[0].id;
+      const account: Account = {
+        puuid: puuid,
+        player_id: player_id,
+        is_primary: true,
+      };
+      const { error, message } = await insertAccount(account);
+      if (error) return { error: error };
     });
-  } catch (error) {
-    console.error(error);
-    return { error: "Error inserting player record." };
+  } catch (e: any) {
+    if (e instanceof Error) console.error(e.message);
+    return { error: "Error while inserting player record." };
   }
-
   return { message: "Successfully inserted player record." };
 }
 
-export async function fetchPlayerListing() {
+/**
+ *
+ * @returns Message contains strinfified array of players
+ */
+export async function fetchPlayerListing(): Promise<ErroredResponse<Player[]>> {
   try {
     const playerRes = await app_db
-      .select({ summonerName: players.summonerName, teamName: teams.name })
+      .select({ riotId: players.summonerName, team: teams.name })
       .from(players)
       .leftJoin(teams, eq(players.teamId, teams.id));
-    return { players: playerRes };
+    const listing = playerRes.filter(
+      (player) => player.riotId !== null
+    ) as Player[];
+    return { message: listing };
   } catch (err) {
     console.error(err);
     return { error: "Error fetching players, contact ruuffian" };
@@ -91,27 +86,33 @@ export async function fetchPlayerListing() {
 }
 
 // data = { name = gameName#tagLine, team = name }
-export async function addPlayerToTeam(player: Player) {
-  const { name, team } = player;
-  if (!name || !team) {
+export async function addPlayerToTeam(
+  player: Player
+): Promise<ErroredResponse<string>> {
+  const { riotId, team } = player;
+  if (!riotId || !team) {
     return { error: "Missing required data." };
   }
-  const { error, puuid } = await fetchPuuid(name);
+  const { error, message: puuid } = await fetchPuuid(riotId);
   if (error) {
     return { error: error };
+  } else if (!puuid) {
+    return { error: `Didn't recive puuid for '${riotId}'` };
   }
   const playerFetch = await app_db
     .select()
     .from(players)
-    .where(eq(players.primaryRiotPuuid, puuid));
+    .where(eq(players.primaryRiotPuuid, puuid))
+    .limit(1);
   if (playerFetch.length === 0) {
-    return { error: `No player '${name} found in database.` };
+    return { error: `No player '${riotId}' found in database.` };
   }
 
   const teamFetch = await app_db
     .select()
     .from(teams)
-    .where(sql`lower(${teams.name}) = lower(${team})`);
+    .where(sql`lower(${teams.name}) = lower(${team})`)
+    .limit(1);
   if (teamFetch.length === 0) {
     return { error: `No team '${team}' found in database.` };
   }
@@ -123,9 +124,9 @@ export async function addPlayerToTeam(player: Player) {
         .set({ teamId: teamFetch[0].id })
         .where(eq(players.id, playerFetch[0].id));
     });
-  } catch (error) {
-    console.error(error);
-    return { error: "Error updating team id, please contact ruuffian." };
+  } catch (e: any) {
+    if (e instanceof Error) console.error(e.message);
+    return { error: `Unexpected error while updating '${riotId}' team id.` };
   }
   return {
     message: `Successfully added '${playerFetch[0].summonerName}' to '${teamFetch[0].name}'.`,
@@ -133,14 +134,18 @@ export async function addPlayerToTeam(player: Player) {
 }
 
 // player = { name = gameName#tagLine }
-export async function removePlayerFromTeam(player: Player) {
-  const { name } = player;
-  if (!name) {
+export async function removePlayerFromTeam(
+  player: Player
+): Promise<ErroredResponse<string>> {
+  const { riotId } = player;
+  if (!riotId) {
     return { error: "Missing required data." };
   }
-  const { error, puuid } = await fetchPuuid(name);
+  const { error, message: puuid } = await fetchPuuid(riotId);
   if (error) {
     return { error: error };
+  } else if (!puuid) {
+    return { error: "Did not recieve puuid." };
   }
 
   const playerFetch = await app_db
@@ -148,7 +153,7 @@ export async function removePlayerFromTeam(player: Player) {
     .from(players)
     .where(eq(players.primaryRiotPuuid, puuid));
   if (playerFetch.length === 0) {
-    return { error: `No player '${name} found in database.` };
+    return { error: `No player '${riotId}' found in database.` };
   }
 
   try {
@@ -158,35 +163,42 @@ export async function removePlayerFromTeam(player: Player) {
         .set({ teamId: null })
         .where(eq(players.id, playerFetch[0].id));
     });
-  } catch (error) {
-    console.error(error);
-    return { error: "Error updating team id, please contact ruuffian." };
+  } catch (e: any) {
+    if (e instanceof Error) console.error(e.message);
+    return {
+      error: `Unkown error occured while updating '${riotId}' team id.`,
+    };
   }
 
   return { message: `Successfully kicked '${playerFetch[0].summonerName}'.` };
 }
 
-// batch = { batch: "player,team\nplayer,team\n..."}
-export async function batchInsertPlayers(batch: Player[]) {
+export async function batchInsertPlayers(
+  batch: Player[]
+): Promise<ErroredResponse<string>> {
   let insertCount = 0;
   let errorCount = 0;
+  const erroredPlayers: string[] = [];
   if (batch.length === 0) {
-    return { error: "Please enter data" };
+    return { error: "Please enter data." };
   }
   for (const row of batch) {
-    const player = row.name.trim();
+    const player = row.riotId.trim();
     const team = row.team?.trim();
     if (!player) {
       continue;
     }
-    const { error } = await insertPlayer({ name: player, team: team });
+    const { error } = await insertPlayer({ riotId: player, team: team });
     if (error) {
-      console.error(`Error inserting ${row}: ${error}`);
       errorCount++;
+      erroredPlayers.push(player);
     } else {
       insertCount++;
     }
   }
+  console.warn(
+    `Encountered errors with the following players: ${erroredPlayers}`
+  );
   const msg = `Inserted ${insertCount} player(s) with ${errorCount} errors. Contact ruuffian for details on errors.`;
   return { message: msg };
 }

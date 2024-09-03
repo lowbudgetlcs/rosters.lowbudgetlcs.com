@@ -19,7 +19,7 @@ const nameRefresh = async () => {
     .select({
       id: players.id,
       puuid: players.primaryRiotPuuid,
-      name: players.summonerName,
+      riotId: players.summonerName,
     })
     .from(players);
   for (const player of playerList) {
@@ -28,9 +28,9 @@ const nameRefresh = async () => {
       if (error) console.error(error);
       else console.error("No riotId recieved.");
     } else {
-      if (player.name != riotId) {
+      if (player.riotId != riotId) {
         try {
-          console.info(`Updated ${player.name} to ${riotId} (id ${player.id})`);
+          console.info(`Updated ${player.riotId} to ${riotId} (id ${player.id})`);
           await app_db.transaction(async (tx) => {
             await tx
               .update(players)
@@ -39,7 +39,7 @@ const nameRefresh = async () => {
           });
         } catch (e: any) {
           // if (e instanceof Error) console.error(e.message);
-          console.warn(`Could not update '${player.name}' to '${riotId}'.`);
+          console.warn(`Could not update '${player.riotId}' to '${riotId}'.`);
         }
       }
     }

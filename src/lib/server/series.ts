@@ -6,9 +6,8 @@ import type { League } from "$lib/server/types";
 const group = ["A", "B", "C", "D"];
 
 export async function generateSeries() {
-  // Fetch divisions
-  const divisionFetch = await app_db.select().from(divisions);
   const leagues: League[] = [];
+  const divisionFetch = await app_db.select().from(divisions);
 
   divisionFetch.forEach((div) => {
     for (let i = 1; i < div.groups + 1; i++) {
@@ -22,7 +21,7 @@ export async function generateSeries() {
       .select()
       .from(teams)
       .where(
-        and(eq(teams.divisionId, league.div), eq(teams.groupId, league.group)),
+        and(eq(teams.divisionId, league.div), eq(teams.groupId, league.group))
       );
     // Select team -> remove team from stack -> create series with teams in stack -> repeat
     const stack: number[] = [];

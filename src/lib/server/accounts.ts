@@ -1,21 +1,23 @@
 import { app_db } from "$lib/server/database/db";
 import { count, eq } from "drizzle-orm";
 import { accounts } from "$lib/server/database/schema";
-import type { Account } from "./types";
+import type { Account, ErroredResponse } from "./types";
 
-export async function insertAccount(account: Account) {
+/**
+ *
+ * @param {Account} account Account to insert.
+ * @returns {ErroredResponse<string>} Error or message.
+ */
+export async function insertAccount(
+  account: Account
+): Promise<ErroredResponse<string>> {
   const { puuid, player_id, is_primary } = account;
-
-  if (!puuid || !player_id || !is_primary)
-    return { error: "Missing required data." };
-
   // Check if account exists
   const accountCheck = await app_db
-    .select({ value: count() })
+    .select({ records: count() })
     .from(accounts)
     .where(eq(accounts.riotPuuid, puuid));
-  const { value: records } = accountCheck[0];
-  if (records != 0) {
+  if (accountCheck[0].records != 0) {
     return { error: "Account is already registered to a different player." };
   }
   // Insert
@@ -27,8 +29,9 @@ export async function insertAccount(account: Account) {
         isPrimary: is_primary,
       });
     });
-  } catch (error) {
-    console.error(error);
-    return { error: "Failed to insert account record." };
+    return { message: `Successfully inserted account '${puuid}'.` };
+  } catch (e) {
+    if (e instanceof Error) console.error(e.message);
+    return { error: `Failed to insert account with puuid '${puuid}'.` };
   }
 }
