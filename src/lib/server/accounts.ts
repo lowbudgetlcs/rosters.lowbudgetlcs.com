@@ -11,17 +11,16 @@ import type { Account, ErroredResponse } from "./types";
 export async function insertAccount(
   account: Account
 ): Promise<ErroredResponse<string>> {
-  console.log(account)
+  console.log(account);
   const { puuid, player_id, is_primary } = account;
   // Check if account exists
-  const accountCheck = await app_db
+  const [accountRes] = await app_db
     .select({ records: count() })
     .from(accounts)
     .where(eq(accounts.riotPuuid, puuid));
-  if (accountCheck[0].records != 0) {
+  if (accountRes) {
     return { error: "Account is already registered to a different player." };
   }
-  console.log(accountCheck)
   // Insert
   try {
     await app_db.transaction(async (tx) => {

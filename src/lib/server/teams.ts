@@ -13,25 +13,23 @@ function getGroupNumber(group: string) {
 export async function insertTeam(team: Team): Promise<ErroredResponse<string>> {
   const { name, division, group, captain = "", logo = "" } = team;
   // Check team name exists
-  const checkTeam = await app_db
+  const [teamCheck] = await app_db
     .select()
     .from(teams)
     .where(sql`lower(${teams.name}) = lower(${name})`);
-  if (checkTeam.length > 0) {
+  if (teamCheck) {
     return { error: "Team already exists with that name." };
   }
-  console.log(checkTeam);
 
   // Fetch division id
-  const divisionId = await app_db
+  const [leagueId] = await app_db
     .select({ division_id: divisions.id, groups: divisions.groups })
     .from(divisions)
     .where(sql`lower(${divisions.name}) = lower(${division})`);
-  if (divisionId.length != 1) {
+  if (leagueId) {
     return { error: `Division '${division}' not found.` };
   }
-  console.log(divisionId);
-  const { division_id, groups } = divisionId[0];
+  const { division_id, groups } = leagueId;
   // Check group exists
   if (getGroupNumber(group) > groups || getGroupNumber(group) < 1) {
     return { error: `Invalid group for ${division}` };
@@ -43,26 +41,21 @@ export async function insertTeam(team: Team): Promise<ErroredResponse<string>> {
   ): Promise<ErroredResponse<number>> => {
     if (!captain) return { message: -1 };
     // Fetch riot PUUID
-    const { error, message: puuid } = await fetchPuuid(captain);
-    if (error) {
+    const { error: puuidError, message: puuid } = await fetchPuuid(captain);
+    if (puuidError || !puuid) {
+      const errMessage = puuidError || `Did not recieve puuid for '${captain}'`;
       console.error(error);
-      return { error: error };
-    } else if (!puuid) {
-      return { error: `Did not recieve puuid for '${captain}'` };
+      return { error: errMessage };
     }
 
     // Fetch player id
-    const captainId = await app_db
+    const [captainId] = await app_db
       .select({ captain_id: players.id })
       .from(players)
       .where(eq(players.primaryRiotPuuid, puuid));
-    if (captainId.length != 1) {
-      const { error, message } = await insertPlayer({
-        riotId: captain,
-        team: name,
-      });
-    }
-    return { message: captainId[0].captain_id };
+
+    if (captainId) return { message: captainId.captain_id };
+    else return { error: `Please create captain before adding to team.` };
   })(captain);
   if (error) return { error: error };
 

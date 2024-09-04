@@ -21,27 +21,20 @@ export async function insertPlayer(
   if (error) return { error: error };
   if (!puuid) return { error: "Did not recieve puuid, contact ruuffian." };
   // Check player doesn't exist
-  const playerCount = await app_db
+  const [playerCheck] = await app_db
     .select({ records: count() })
     .from(players)
     .where(eq(players.primaryRiotPuuid, puuid));
-  if (playerCount[0].records != 0)
+  if (playerCheck)
     return {
       error: "Player with that primary account already exists.",
     };
   // Query team id
-  const team_id = await (async (teamName: string | undefined) => {
-    if (!teamName) return 0;
-
-    const teamFetch = await app_db
-      .select()
-      .from(teams)
-      .where(sql`lower(${teams.name}) = lower(${teamName})`);
-    if (teamFetch.length != 1) {
-      return -1;
-    }
-    return teamFetch[0].id;
-  })(team);
+  const [teamFetch] = await app_db
+    .select({ team_id: teams.id })
+    .from(teams)
+    .where(sql`lower(${teams.name}) = lower(${team})`);
+  const team_id = teamFetch ? teamFetch.team_id : -1;
   if (team_id === -1) return { error: `Could not find team '${team}.` };
   // Insert player
   try {
@@ -108,21 +101,21 @@ export async function addPlayerToTeam(
   } else if (!puuid) {
     return { error: `Didn't recive puuid for '${riotId}'` };
   }
-  const playerFetch = await app_db
+  const [playerFetch] = await app_db
     .select()
     .from(players)
     .where(eq(players.primaryRiotPuuid, puuid))
     .limit(1);
-  if (playerFetch.length === 0) {
+  if (!playerFetch) {
     return { error: `No player '${riotId}' found in database.` };
   }
 
-  const teamFetch = await app_db
+  const [teamFetch] = await app_db
     .select()
     .from(teams)
     .where(sql`lower(${teams.name}) = lower(${team})`)
     .limit(1);
-  if (teamFetch.length === 0) {
+  if (!teamFetch) {
     return { error: `No team '${team}' found in database.` };
   }
 
@@ -130,15 +123,15 @@ export async function addPlayerToTeam(
     await app_db.transaction(async (tx) => {
       await tx
         .update(players)
-        .set({ teamId: teamFetch[0].id })
-        .where(eq(players.id, playerFetch[0].id));
+        .set({ teamId: teamFetch.id })
+        .where(eq(players.id, playerFetch.id));
     });
   } catch (e: any) {
     if (e instanceof Error) console.error(e.message);
     return { error: `Unexpected error while updating '${riotId}' team id.` };
   }
   return {
-    message: `Successfully added '${playerFetch[0].summonerName}' to '${teamFetch[0].name}'.`,
+    message: `Successfully added '${playerFetch.summonerName}' to '${teamFetch.name}'.`,
   };
 }
 
@@ -161,11 +154,11 @@ export async function removePlayerFromTeam(
     return { error: "Did not recieve puuid." };
   }
 
-  const playerFetch = await app_db
+  const [playerFetch] = await app_db
     .select()
     .from(players)
     .where(eq(players.primaryRiotPuuid, puuid));
-  if (playerFetch.length === 0) {
+  if (!playerFetch) {
     return { error: `No player '${riotId}' found in database.` };
   }
 
@@ -174,7 +167,7 @@ export async function removePlayerFromTeam(
       await tx
         .update(players)
         .set({ teamId: null })
-        .where(eq(players.id, playerFetch[0].id));
+        .where(eq(players.id, playerFetch.id));
     });
   } catch (e: any) {
     if (e instanceof Error) console.error(e.message);
@@ -183,7 +176,7 @@ export async function removePlayerFromTeam(
     };
   }
 
-  return { message: `Successfully kicked '${playerFetch[0].summonerName}'.` };
+  return { message: `Successfully kicked '${playerFetch.summonerName}'.` };
 }
 
 /**

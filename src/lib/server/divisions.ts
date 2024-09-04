@@ -10,11 +10,11 @@ export async function insertDivision(
 ): Promise<ErroredResponse<string>> {
   const { name, groups, description = "" } = division;
   // Check name is not taken
-  const divisionNameCheck = await app_db
+  const [divisionCheck] = await app_db
     .select({ records: count() })
     .from(divisions)
     .where(sql`lower(${divisions.name}) = lower(${name})`);
-  if (divisionNameCheck[0].records != 0) {
+  if (divisionCheck) {
     return {
       error: `Division '${name}' already exists.`,
     };
@@ -28,7 +28,7 @@ export async function insertDivision(
       providerId
     );
     if (error) return { error: error };
-    const tid = tournamentId!!
+    const tid = tournamentId!!;
     await app_db.transaction(async (tx) => {
       await tx.insert(divisions).values({
         name: name,
