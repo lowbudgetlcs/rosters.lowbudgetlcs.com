@@ -79,6 +79,51 @@
         {/if}
       </form>
     </CollapsibleSection>
+    <CollapsibleSection headerText="Replace Team">
+      <p class="italic">
+        When replacing teams, please make sure the new team has already been
+        created with the above form.
+      </p>
+      <form
+        use:enhance
+        method="POST"
+        action="?/switchTeam"
+        class="flex flex-col w-full rounded-xl p-2 bg-surface-300"
+      >
+        <label for="oldTeam">Old Team</label>
+        <input
+          type="text"
+          id="oldTeam"
+          class="w-80 text-surface-200 p-1"
+          required
+        />
+        <br />
+
+        <label for="newTeam">New Team</label>
+        <input
+          type="text"
+          id="newTeam"
+          class="w-80 text-surface-200 p-1"
+          required
+        />
+        <br />
+        <button
+          type="submit"
+          class="rounded-xl bg-primary-500 hover:bg-primary-400 text-black"
+          >Submit</button
+        >
+        {#if form?.error}
+          <p class="text-red-400 font-bold italic">
+            {form.error}
+          </p>
+        {/if}
+        {#if form?.message}
+          <p class="font-bold italic text-white">
+            {form.message}
+          </p>
+        {/if}
+      </form>
+    </CollapsibleSection>
     <CollapsibleSection headerText="Add Player to Team">
       <form
         use:enhance
