@@ -6,8 +6,11 @@ import {
   addPlayerToTeam,
 } from "$lib/server/players";
 import type { PageServerLoad, Actions } from "./$types";
+import type { ErroredResponse, Team } from "$lib/server/types";
 
-export const load: PageServerLoad = async ({}) => {
+export const load: PageServerLoad = async ({}): Promise<
+  ErroredResponse<Team[]>
+> => {
   return await fetchTeamListing();
 };
 
@@ -24,7 +27,6 @@ export const actions = {
         error: "Missing required data.",
       });
     }
-
     const { error, message } = await insertTeam({
       name,
       division,

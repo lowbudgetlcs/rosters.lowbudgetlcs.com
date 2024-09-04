@@ -7,10 +7,16 @@ import {
 import type { PageServerLoad, Actions } from "./$types";
 import type { ErroredResponse, Player } from "$lib/server/types";
 
-export const load: PageServerLoad = async ({}): Promise<
+export const load: PageServerLoad = async (): Promise<
   ErroredResponse<Player[]>
 > => {
-  return await fetchPlayerListing();
+  const { error, message: teams } = await fetchPlayerListing();
+  if (error) {
+    return { error: error };
+  } else {
+    if (teams) return { message: teams };
+    return { message: [] };
+  }
 };
 
 export const actions = {

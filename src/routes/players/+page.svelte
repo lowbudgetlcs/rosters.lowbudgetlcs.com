@@ -118,14 +118,16 @@
       <li>{data.error}</li>
     {:else}
       <ul>
-        {#each data.players as player}
-          <li class="flex flex-row">
-            <p class="mx-2">{player.summonerName}</p>
-            <p class="mx-2">
-              {player?.teamName ? player.teamName : "NO_TEAM"}
-            </p>
-          </li>
-        {/each}
+        {#if data?.message}
+          {#each data?.message as player}
+            <li class="flex flex-row">
+              <p class="mx-2">{player.riotId}</p>
+              <p class="mx-2">
+                {player?.team ? player.team : "NO_TEAM"}
+              </p>
+            </li>
+          {/each}
+        {/if}
       </ul>
     {/if}
   </div>

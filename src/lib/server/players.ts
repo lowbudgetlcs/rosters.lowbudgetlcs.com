@@ -45,8 +45,8 @@ export async function insertPlayer(
   if (team_id === -1) return { error: `Could not find team '${team}.` };
   // Insert player
   try {
-    await app_db.transaction(async (tx) => {
-      const playerInsert = await tx
+    const player_id = await app_db.transaction(async (tx) => {
+      const [player] = await tx
         .insert(players)
         .values({
           primaryRiotPuuid: puuid,
@@ -54,15 +54,15 @@ export async function insertPlayer(
           summonerName: riotId,
         })
         .returning();
-      const player_id = playerInsert[0].id;
-      const account: Account = {
-        puuid: puuid,
-        player_id: player_id,
-        is_primary: true,
-      };
-      const { error, message } = await insertAccount(account);
-      if (error) return { error: error };
+      return player.id;
     });
+    const account: Account = {
+      puuid: puuid,
+      player_id: player_id,
+      is_primary: true,
+    };
+    const { error, message } = await insertAccount(account);
+    if (error) return { error: error };
   } catch (e: any) {
     if (e instanceof Error) console.error(e.message);
     return { error: "Error while inserting player record." };

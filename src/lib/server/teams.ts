@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { teams, divisions, players } from "$lib/server/database/schema";
 import { fetchPuuid } from "$lib/server/riot";
-import { sql, eq } from "drizzle-orm";
+import { sql, eq, and } from "drizzle-orm";
 import { app_db } from "$lib/server/database/db";
 import type { ErroredResponse, Team } from "$lib/server/types";
 import { insertPlayer } from "./players";
@@ -20,6 +20,7 @@ export async function insertTeam(team: Team): Promise<ErroredResponse<string>> {
   if (checkTeam.length > 0) {
     return { error: "Team already exists with that name." };
   }
+  console.log(checkTeam);
 
   // Fetch division id
   const divisionId = await app_db
@@ -29,6 +30,7 @@ export async function insertTeam(team: Team): Promise<ErroredResponse<string>> {
   if (divisionId.length != 1) {
     return { error: `Division '${division}' not found.` };
   }
+  console.log(divisionId);
   const { division_id, groups } = divisionId[0];
   // Check group exists
   if (getGroupNumber(group) > groups || getGroupNumber(group) < 1) {
@@ -36,7 +38,10 @@ export async function insertTeam(team: Team): Promise<ErroredResponse<string>> {
   }
 
   // If given captain fetch captain id
-  if (captain) {
+  const { error, message: captain_id } = await (async (
+    captain: string | null
+  ): Promise<ErroredResponse<number>> => {
+    if (!captain) return { message: -1 };
     // Fetch riot PUUID
     const { error, message: puuid } = await fetchPuuid(captain);
     if (error) {
@@ -57,40 +62,42 @@ export async function insertTeam(team: Team): Promise<ErroredResponse<string>> {
         team: name,
       });
     }
-    const { captain_id } = captainId[0];
-    try {
-      await app_db.transaction(async (tx) => {
-        await tx.insert(teams).values({
-          name: name,
-          divisionId: division_id,
-          groupId: group,
-          captainId: captain_id || null,
-          logo: logo,
-        });
+    return { message: captainId[0].captain_id };
+  })(captain);
+  if (error) return { error: error };
+
+  try {
+    await app_db.transaction(async (tx) => {
+      await tx.insert(teams).values({
+        name: name,
+        divisionId: division_id,
+        groupId: group,
+        captainId: captain_id != -1 ? captain_id || null : null,
+        logo: logo,
       });
-    } catch (error) {
-      console.error(error);
-      return { error: "Error inserting team record into database." };
-    }
+    });
+  } catch (error) {
+    console.error(error);
+    return { error: "Error inserting team record into database." };
   }
 
   return { message: "Team inserted successfully." };
 }
 
-export async function fetchTeamListing(): Promise<
-  ErroredResponse<
-    { team: string; division: string | null; group: string }[]
-  >
-> {
+export async function fetchTeamListing(): Promise<ErroredResponse<Team[]>> {
   try {
     const teamsFetch = await app_db
       .select({
-        team: teams.name,
+        name: teams.name,
         division: divisions.name,
         group: teams.groupId,
+        captain: players.summonerName,
+        logo: teams.logo,
       })
       .from(teams)
-      .leftJoin(divisions, eq(teams.divisionId, divisions.id));
+      .leftJoin(players, eq(players.id, teams.captainId))
+      .leftJoin(divisions, eq(teams.divisionId, divisions.id))
+      .orderBy(divisions.id);
     return { message: teamsFetch };
   } catch (error) {
     console.error(error);

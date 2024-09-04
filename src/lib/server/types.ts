@@ -31,7 +31,7 @@ export type League = {
 
 export type Team = {
   name: string;
-  division: string;
+  division: string | null;
   group: string;
   captain: string | null;
   logo: string | null;

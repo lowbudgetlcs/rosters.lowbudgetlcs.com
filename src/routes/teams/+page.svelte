@@ -164,14 +164,16 @@
       <li>{data.error}</li>
     {:else}
       <ul>
-        {#each data.teams as team}
-          <li class="flex flex-row">
-            <p class="mx-2">'{team.teamName}'</p>
-            <p class="mx-2">
-              {team?.divisionName ? team.divisionName : "NO_DIVISION"}
-            </p>
-          </li>
-        {/each}
+        {#if data?.message}
+          {#each data?.message as team}
+            <li class="flex flex-row">
+              <p class="mx-2">'{team.name}'</p>
+              <p class="mx-2">
+                {team?.division ? team.division : "NO_DIVISION"}
+              </p>
+            </li>
+          {/each}
+        {/if}
       </ul>
     {/if}
   </div>

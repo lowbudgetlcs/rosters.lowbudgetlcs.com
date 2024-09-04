@@ -11,6 +11,7 @@ import type { Account, ErroredResponse } from "./types";
 export async function insertAccount(
   account: Account
 ): Promise<ErroredResponse<string>> {
+  console.log(account)
   const { puuid, player_id, is_primary } = account;
   // Check if account exists
   const accountCheck = await app_db
@@ -20,6 +21,7 @@ export async function insertAccount(
   if (accountCheck[0].records != 0) {
     return { error: "Account is already registered to a different player." };
   }
+  console.log(accountCheck)
   // Insert
   try {
     await app_db.transaction(async (tx) => {

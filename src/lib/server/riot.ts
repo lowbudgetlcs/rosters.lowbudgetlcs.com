@@ -16,6 +16,8 @@ export async function fetchPuuid(
   riotId: string
 ): Promise<ErroredResponse<string>> {
   const [gameName, tagLine] = riotId.split("#");
+  console.log(gameName)
+  console.log(tagLine)
   if (!gameName || !tagLine)
     return { error: `'${riotId}' not properly formatted: gameName#tagLine` };
   try {
