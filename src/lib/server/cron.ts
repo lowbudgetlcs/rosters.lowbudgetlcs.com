@@ -8,7 +8,7 @@ import { Cron } from "croner";
 export function initCron() {
   const nameRefreshJob = Cron("30 04 * * *", { timezone: "America/New_York" });
   nameRefreshJob.schedule(nameRefresh);
-  // nameRefreshJob.trigger();
+ // nameRefreshJob.trigger();
 }
 
 // Summoner Name refresh
