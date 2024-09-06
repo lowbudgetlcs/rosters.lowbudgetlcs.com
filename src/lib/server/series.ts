@@ -21,7 +21,7 @@ export async function generateSeries() {
       .select()
       .from(teams)
       .where(
-        and(eq(teams.divisionId, league.div), eq(teams.groupId, league.group))
+        and(eq(teams.divisionId, league.div), eq(teams.groupId, league.group)),
       );
     // Select team -> remove team from stack -> create series with teams in stack -> repeat
     const stack: number[] = [];

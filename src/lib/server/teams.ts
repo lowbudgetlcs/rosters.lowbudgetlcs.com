@@ -37,7 +37,7 @@ export async function insertTeam(team: Team): Promise<ErroredResponse<string>> {
 
   // If given captain fetch captain id
   const { error, message: captain_id } = await (async (
-    captain: string | null
+    captain: string | null,
   ): Promise<ErroredResponse<number>> => {
     if (!captain) return { message: -1 };
     // Fetch riot PUUID
@@ -100,7 +100,7 @@ export async function fetchTeamListing(): Promise<ErroredResponse<Team[]>> {
 
 export async function swapTeams(
   oldTeamName: string,
-  newTeamName: string
+  newTeamName: string,
 ): Promise<ErroredResponse<string>> {
   console.log(oldTeamName);
   console.log(newTeamName);

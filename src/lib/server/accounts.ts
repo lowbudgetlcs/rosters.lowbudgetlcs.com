@@ -9,7 +9,7 @@ import type { Account, ErroredResponse } from "./types";
  * @returns {ErroredResponse<string>} Error or message.
  */
 export async function insertAccount(
-  account: Account
+  account: Account,
 ): Promise<ErroredResponse<string>> {
   console.log(account);
   const { puuid, player_id, is_primary } = account;

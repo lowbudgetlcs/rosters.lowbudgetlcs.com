@@ -12,7 +12,7 @@ import type { Account, ErroredResponse, Player } from "./types";
  * @returns Success or failure message
  */
 export async function insertPlayer(
-  player: Player
+  player: Player,
 ): Promise<ErroredResponse<string>> {
   const { riotId, team } = player;
 
@@ -74,7 +74,7 @@ export async function fetchPlayerListing(): Promise<ErroredResponse<Player[]>> {
       .from(players)
       .leftJoin(teams, eq(players.teamId, teams.id));
     const listing = playerRes.filter(
-      (player) => player.riotId !== null
+      (player) => player.riotId !== null,
     ) as Player[];
     return { message: listing };
   } catch (err) {
@@ -89,7 +89,7 @@ export async function fetchPlayerListing(): Promise<ErroredResponse<Player[]>> {
  * @returns Success or failure message
  */
 export async function addPlayerToTeam(
-  player: Player
+  player: Player,
 ): Promise<ErroredResponse<string>> {
   const { riotId, team } = player;
   if (!riotId || !team) {
@@ -141,7 +141,7 @@ export async function addPlayerToTeam(
  * @returns Success or failure message
  */
 export async function removePlayerFromTeam(
-  player: Player
+  player: Player,
 ): Promise<ErroredResponse<string>> {
   const { riotId } = player;
   if (!riotId) {
@@ -185,7 +185,7 @@ export async function removePlayerFromTeam(
  * @returns  Success or failure message
  */
 export async function batchInsertPlayers(
-  batch: Player[]
+  batch: Player[],
 ): Promise<ErroredResponse<string>> {
   let insertCount = 0;
   let errorCount = 0;
@@ -208,7 +208,7 @@ export async function batchInsertPlayers(
     }
   }
   console.warn(
-    `Encountered errors with the following players: ${erroredPlayers}`
+    `Encountered errors with the following players: ${erroredPlayers}`,
   );
   const msg = `Inserted ${insertCount} player(s) with ${errorCount} errors. Contact ruuffian for details on errors.`;
   return { message: msg };

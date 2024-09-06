@@ -13,11 +13,11 @@ const riot = new RiotAPI(process.env.RIOT_API_TOKEN!!, config);
  * @returns {Promise<ErroredResponse>} Message contains puuid - message = puuid
  */
 export async function fetchPuuid(
-  riotId: string
+  riotId: string,
 ): Promise<ErroredResponse<string>> {
   const [gameName, tagLine] = riotId.split("#");
-  console.log(gameName)
-  console.log(tagLine)
+  console.log(gameName);
+  console.log(tagLine);
   if (!gameName || !tagLine)
     return { error: `'${riotId}' not properly formatted: gameName#tagLine` };
   try {
@@ -39,7 +39,7 @@ export async function fetchPuuid(
  * @returns {Promise<ErroredResponse>} Message contains Riot Id - message = rioId
  */
 export async function fetchNameByPuuid(
-  puuid: string
+  puuid: string,
 ): Promise<ErroredResponse<string>> {
   try {
     const account = await riot.account.getByPUUID({
@@ -67,7 +67,7 @@ export async function fetchNameByPuuid(
  */
 export async function createTournament(
   name: string,
-  providerId: number
+  providerId: number,
 ): Promise<ErroredResponse<number>> {
   const body: RiotAPITypes.TournamentV5.TournamentRegistrationParametersV5DTO =
     {

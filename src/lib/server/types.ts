@@ -1,10 +1,12 @@
-export type ErroredResponse<T> = {
-  message?: undefined;
-  error: string;
-} | {
-  message: T,
-  error?: undefined
-};
+export type ErroredResponse<T> =
+  | {
+      message?: undefined;
+      error: string;
+    }
+  | {
+      message: T;
+      error?: undefined;
+    };
 
 export type Account = {
   puuid: string;

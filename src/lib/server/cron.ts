@@ -8,7 +8,7 @@ import { Cron } from "croner";
 export function initCron() {
   const nameRefreshJob = Cron("30 04 * * *", { timezone: "America/New_York" });
   nameRefreshJob.schedule(nameRefresh);
- // nameRefreshJob.trigger();
+  // nameRefreshJob.trigger();
 }
 
 // Summoner Name refresh
@@ -30,7 +30,9 @@ const nameRefresh = async () => {
     } else {
       if (player.riotId != riotId) {
         try {
-          console.info(`Updated ${player.riotId} to ${riotId} (id ${player.id})`);
+          console.info(
+            `Updated ${player.riotId} to ${riotId} (id ${player.id})`,
+          );
           await app_db.transaction(async (tx) => {
             await tx
               .update(players)
@@ -46,6 +48,6 @@ const nameRefresh = async () => {
   }
   const end = new Date();
   console.info(
-    `SUMMONER REFRESH FINISHED @${end}. Took ${new Date(end.valueOf() - start.valueOf()).toISOString().substring(11, 8)}`
+    `SUMMONER REFRESH FINISHED @${end}. Took ${new Date(end.valueOf() - start.valueOf()).toISOString().substring(11, 8)}`,
   );
 };

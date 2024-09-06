@@ -6,7 +6,7 @@ import type { Division, ErroredResponse } from "$lib/server/types";
 import { createTournament } from "$lib/server/riot";
 
 export async function insertDivision(
-  division: Division
+  division: Division,
 ): Promise<ErroredResponse<string>> {
   const { name, groups, description = "" } = division;
   // Check name is not taken
@@ -25,7 +25,7 @@ export async function insertDivision(
     const providerId = parseInt(process.env.providerId!!); // Need to create sesason meta data table tbh
     const { error, message: tournamentId } = await createTournament(
       name,
-      providerId
+      providerId,
     );
     if (error) return { error: error };
     const tid = tournamentId!!;
