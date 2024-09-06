@@ -9,7 +9,6 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@sveltejs/kit": "^2.0.0",
     "@tsconfig/svelte": "^5.0.4",
     "@types/better-sqlite3": "^7.6.11",
     "@types/jsonwebtoken": "^9.0.6",
@@ -25,7 +24,6 @@
     "@fightmegg/riot-api": "^0.0.20",
     "argon2": "^0.40.3",
     "svelte": "^4.2.7",
-    "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "better-sqlite3": "^11.2.1",
     "croner": "^8.1.1",
     "dotenv": "^16.4.5",
@@ -35,6 +33,8 @@
   },
   "type": "module",
   "dependencies": {
-    "vite": "^5.0.3"
+    "vite": "^5.0.3",
+    "@sveltejs/kit": "^2.0.0",
+    "@sveltejs/vite-plugin-svelte": "^3.0.0"
   }
 }
