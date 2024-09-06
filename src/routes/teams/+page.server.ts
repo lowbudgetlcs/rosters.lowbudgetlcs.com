@@ -1,5 +1,5 @@
 import { fail } from "@sveltejs/kit";
-import { insertTeam, fetchTeamListing } from "$lib/server/teams";
+import { insertTeam, fetchTeamListing, swapTeams } from "$lib/server/teams";
 import {
   fetchPlayerListing,
   removePlayerFromTeam,
@@ -73,6 +73,24 @@ export const actions = {
     }
 
     const { error, message } = await addPlayerToTeam({ riotId, team });
+    if (error) {
+      return fail(401, {
+        error,
+      });
+    }
+    return { message };
+  },
+  switchTeams: async ({ request }) => {
+    const data = await request.formData();
+    const oldTeam = data.get("oldTeam") as string;
+    const newTeam = data.get("newTeam") as string;
+    if (!oldTeam || !newTeam) {
+      return fail(400, {
+        error: "Missing required data.",
+      });
+    }
+
+    const { error, message } = await swapTeams(oldTeam, newTeam);
     if (error) {
       return fail(401, {
         error,

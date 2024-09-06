@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { teams, divisions, players } from "$lib/server/database/schema";
+import { teams, divisions, players, series } from "$lib/server/database/schema";
 import { fetchPuuid } from "$lib/server/riot";
-import { sql, eq, and } from "drizzle-orm";
+import { sql, eq, or } from "drizzle-orm";
 import { app_db } from "$lib/server/database/db";
 import type { ErroredResponse, Team } from "$lib/server/types";
 import { insertPlayer } from "./players";
@@ -26,7 +26,7 @@ export async function insertTeam(team: Team): Promise<ErroredResponse<string>> {
     .select({ division_id: divisions.id, groups: divisions.groups })
     .from(divisions)
     .where(sql`lower(${divisions.name}) = lower(${division})`);
-  if (leagueId) {
+  if (!leagueId) {
     return { error: `Division '${division}' not found.` };
   }
   const { division_id, groups } = leagueId;
@@ -96,4 +96,66 @@ export async function fetchTeamListing(): Promise<ErroredResponse<Team[]>> {
     console.error(error);
     return { error: "Error while fetching team listing" };
   }
+}
+
+export async function swapTeams(
+  oldTeamName: string,
+  newTeamName: string
+): Promise<ErroredResponse<string>> {
+  console.log(oldTeamName);
+  console.log(newTeamName);
+  const [oldTeam] = await app_db
+    .select()
+    .from(teams)
+    .where(sql`lower(${teams.name}) = lower(${oldTeamName})`);
+  if (!oldTeam) {
+    return { error: `No team '${oldTeamName}' found.` };
+  }
+  const [newTeam] = await app_db
+    .select()
+    .from(teams)
+    .where(sql`lower(${teams.name}) = lower(${newTeamName})`);
+  if (!newTeam) {
+    return { error: `No team '${newTeamName}' found.` };
+  }
+
+  const oldSeries = await app_db
+    .select()
+    .from(series)
+    .where(or(eq(series.team1Id, oldTeam.id), eq(series.team2Id, oldTeam.id)));
+
+  if (oldSeries.length < 1) {
+    return { error: `No series found from '${oldTeamName}'.` };
+  }
+
+  try {
+    await app_db.transaction(async (tx) => {
+      oldSeries.forEach(async (seriesRow) => {
+        console.log(seriesRow);
+        console.log(seriesRow.team1Id);
+        console.log(seriesRow.team2Id);
+        const opponentId =
+          seriesRow.team1Id === oldTeam.id
+            ? seriesRow.team2Id || -1
+            : seriesRow?.team1Id || -1;
+        if (newTeam.id > opponentId) {
+          await tx
+            .update(series)
+            .set({ team1Id: newTeam.id, team2Id: opponentId })
+            .where(eq(series.id, seriesRow.id));
+        } else {
+          await tx
+            .update(series)
+            .set({ team1Id: opponentId, team2Id: newTeam.id })
+            .where(eq(series.id, seriesRow.id));
+        }
+      });
+    });
+  } catch (e: any) {
+    if (e instanceof Error) console.error(e.message);
+  }
+
+  return {
+    message: `Successfully swapped ${oldTeamName} with ${newTeamName}.`,
+  };
 }

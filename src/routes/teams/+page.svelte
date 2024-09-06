@@ -87,13 +87,14 @@
       <form
         use:enhance
         method="POST"
-        action="?/switchTeam"
+        action="?/switchTeams"
         class="flex flex-col w-full rounded-xl p-2 bg-surface-300"
       >
         <label for="oldTeam">Old Team</label>
         <input
           type="text"
           id="oldTeam"
+          name="oldTeam"
           class="w-80 text-surface-200 p-1"
           required
         />
@@ -103,6 +104,7 @@
         <input
           type="text"
           id="newTeam"
+          name="newTeam"
           class="w-80 text-surface-200 p-1"
           required
         />
@@ -124,6 +126,7 @@
         {/if}
       </form>
     </CollapsibleSection>
+
     <CollapsibleSection headerText="Add Player to Team">
       <form
         use:enhance
