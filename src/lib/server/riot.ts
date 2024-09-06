@@ -5,7 +5,7 @@ import type { ErroredResponse } from "./types";
 const config: RiotAPITypes.Config = {
   debug: process.env.NODE_ENV === "development",
 };
-const riot = new RiotAPI(process.env.RIOT_API_TOKEN!!, config);
+export const riot = new RiotAPI(process.env.RIOT_API_TOKEN!!, config);
 
 /**
  *
