@@ -9,6 +9,9 @@
   </p>
 
   <form class="justify-self-end" method="POST" action="?/logout">
-    <button type="submit" class="rounded-xl bg-primary-500 text-black p-2 m-auto">Logout</button>
+    <button
+      type="submit"
+      class="rounded-xl bg-primary-500 text-black p-2 m-auto">Logout</button
+    >
   </form>
 </section>
