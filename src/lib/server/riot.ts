@@ -2,10 +2,13 @@ import "dotenv/config";
 import { RiotAPI, RiotAPITypes, PlatformId } from "@fightmegg/riot-api";
 import type { ErroredResponse } from "./types";
 
-const config: RiotAPITypes.Config = {
-  debug: process.env.NODE_ENV === "development",
-};
-export const riot = new RiotAPI(process.env.RIOT_API_TOKEN!!, config);
+function rAPI() {
+  const config: RiotAPITypes.Config = {
+    debug: process.env.NODE_ENV === "development",
+  };
+
+  return new RiotAPI(process.env.RIOT_API_TOKEN!!, config);
+}
 
 /**
  *
@@ -13,8 +16,9 @@ export const riot = new RiotAPI(process.env.RIOT_API_TOKEN!!, config);
  * @returns {Promise<ErroredResponse>} Message contains puuid - message = puuid
  */
 export async function fetchPuuid(
-  riotId: string,
+  riotId: string
 ): Promise<ErroredResponse<string>> {
+  const riot = rAPI();
   const [gameName, tagLine] = riotId.split("#");
   console.log(gameName);
   console.log(tagLine);
@@ -39,8 +43,9 @@ export async function fetchPuuid(
  * @returns {Promise<ErroredResponse>} Message contains Riot Id - message = rioId
  */
 export async function fetchNameByPuuid(
-  puuid: string,
+  puuid: string
 ): Promise<ErroredResponse<string>> {
+  const riot = rAPI();
   try {
     const account = await riot.account.getByPUUID({
       region: PlatformId.AMERICAS,
@@ -67,8 +72,9 @@ export async function fetchNameByPuuid(
  */
 export async function createTournament(
   name: string,
-  providerId: number,
+  providerId: number
 ): Promise<ErroredResponse<number>> {
+  const riot = rAPI();
   const body: RiotAPITypes.TournamentV5.TournamentRegistrationParametersV5DTO =
     {
       name: name,
