@@ -9,7 +9,7 @@ import type { Account, ErroredResponse } from "./types";
  * @returns {ErroredResponse<string>} Error or message.
  */
 export async function insertAccount(
-  account: Account,
+  account: Account
 ): Promise<ErroredResponse<string>> {
   console.log(account);
   const { puuid, player_id, is_primary } = account;
@@ -18,7 +18,7 @@ export async function insertAccount(
     .select({ records: count() })
     .from(accounts)
     .where(eq(accounts.riotPuuid, puuid));
-  if (accountRes) {
+  if (accountRes.records > 0) {
     return { error: "Account is already registered to a different player." };
   }
   // Insert

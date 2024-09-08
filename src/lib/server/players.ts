@@ -12,10 +12,9 @@ import type { Account, ErroredResponse, Player } from "./types";
  * @returns Success or failure message
  */
 export async function insertPlayer(
-  player: Player,
+  player: Player
 ): Promise<ErroredResponse<string>> {
   const { riotId, team } = player;
-
   // Fetch puuid
   const { error, message: puuid } = await fetchPuuid(riotId);
   if (error) return { error: error };
@@ -25,7 +24,7 @@ export async function insertPlayer(
     .select({ records: count() })
     .from(players)
     .where(eq(players.primaryRiotPuuid, puuid));
-  if (playerCheck)
+  if (playerCheck.records > 0)
     return {
       error: "Player with that primary account already exists.",
     };
@@ -38,7 +37,7 @@ export async function insertPlayer(
   if (team_id === -1) return { error: `Could not find team '${team}.` };
   // Insert player
   try {
-    const player_id = await app_db.transaction(async (tx) => {
+    const { error, message } = await app_db.transaction(async (tx) => {
       const [player] = await tx
         .insert(players)
         .values({
@@ -47,15 +46,15 @@ export async function insertPlayer(
           summonerName: riotId,
         })
         .returning();
-      return player.id;
+      const account: Account = {
+        puuid: puuid,
+        player_id: player.id,
+        is_primary: true,
+      };
+      const { error, message } = await insertAccount(account);
+      if (error) return { error: error };
+      return { message: "" };
     });
-    const account: Account = {
-      puuid: puuid,
-      player_id: player_id,
-      is_primary: true,
-    };
-    const { error, message } = await insertAccount(account);
-    if (error) return { error: error };
   } catch (e: any) {
     if (e instanceof Error) console.error(e.message);
     return { error: "Error while inserting player record." };
@@ -74,7 +73,7 @@ export async function fetchPlayerListing(): Promise<ErroredResponse<Player[]>> {
       .from(players)
       .leftJoin(teams, eq(players.teamId, teams.id));
     const listing = playerRes.filter(
-      (player) => player.riotId !== null,
+      (player) => player.riotId !== null
     ) as Player[];
     return { message: listing };
   } catch (err) {
@@ -89,7 +88,7 @@ export async function fetchPlayerListing(): Promise<ErroredResponse<Player[]>> {
  * @returns Success or failure message
  */
 export async function addPlayerToTeam(
-  player: Player,
+  player: Player
 ): Promise<ErroredResponse<string>> {
   const { riotId, team } = player;
   if (!riotId || !team) {
@@ -141,7 +140,7 @@ export async function addPlayerToTeam(
  * @returns Success or failure message
  */
 export async function removePlayerFromTeam(
-  player: Player,
+  player: Player
 ): Promise<ErroredResponse<string>> {
   const { riotId } = player;
   if (!riotId) {
@@ -185,7 +184,7 @@ export async function removePlayerFromTeam(
  * @returns  Success or failure message
  */
 export async function batchInsertPlayers(
-  batch: Player[],
+  batch: Player[]
 ): Promise<ErroredResponse<string>> {
   let insertCount = 0;
   let errorCount = 0;
@@ -201,6 +200,7 @@ export async function batchInsertPlayers(
     }
     const { error } = await insertPlayer({ riotId: player, team: team });
     if (error) {
+      console.error(error);
       errorCount++;
       erroredPlayers.push(player);
     } else {
@@ -208,7 +208,7 @@ export async function batchInsertPlayers(
     }
   }
   console.warn(
-    `Encountered errors with the following players: ${erroredPlayers}`,
+    `Encountered errors with the following players: ${erroredPlayers}`
   );
   const msg = `Inserted ${insertCount} player(s) with ${errorCount} errors. Contact ruuffian for details on errors.`;
   return { message: msg };
