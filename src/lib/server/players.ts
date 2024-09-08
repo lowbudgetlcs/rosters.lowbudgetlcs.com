@@ -71,7 +71,8 @@ export async function fetchPlayerListing(): Promise<ErroredResponse<Player[]>> {
     const playerRes = await app_db
       .select({ riotId: players.summonerName, team: teams.name })
       .from(players)
-      .leftJoin(teams, eq(players.teamId, teams.id));
+      .leftJoin(teams, eq(players.teamId, teams.id))
+      .orderBy(desc(teams.name));
     const listing = playerRes.filter(
       (player) => player.riotId !== null
     ) as Player[];
