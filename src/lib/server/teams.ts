@@ -102,8 +102,6 @@ export async function swapTeams(
   oldTeamName: string,
   newTeamName: string,
 ): Promise<ErroredResponse<string>> {
-  console.log(oldTeamName);
-  console.log(newTeamName);
   const [oldTeam] = await app_db
     .select()
     .from(teams)
@@ -131,9 +129,6 @@ export async function swapTeams(
   try {
     await app_db.transaction(async (tx) => {
       oldSeries.forEach(async (seriesRow) => {
-        console.log(seriesRow);
-        console.log(seriesRow.team1Id);
-        console.log(seriesRow.team2Id);
         const opponentId =
           seriesRow.team1Id === oldTeam.id
             ? seriesRow.team2Id || -1
