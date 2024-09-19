@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { count, eq, sql } from "drizzle-orm";
+import { count, eq, sql, desc } from "drizzle-orm";
 import { app_db } from "$lib/server/database/db";
 import { players, teams } from "$lib/server/database/schema";
 import { insertAccount } from "$lib/server/accounts";
